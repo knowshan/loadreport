@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>schedule-loadreport.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="public/stylesheets/normalize.css" />
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="page">
+
+      <div class="header">
+        
+          <h1>schedule-loadreport.js</h1>
+        
+
+        
+          <div class="toc">
+            <h3>Table of Contents</h3>
+            <ol>
+              
+                
+                <li>
+                  <a class="source" href="main.html">
+                    main.js
+                  </a>
+                </li>
+              
+                
+                <li>
+                  <a class="source" href="webserver.html">
+                    webserver.js
+                  </a>
+                </li>
+              
+                
+                <li>
+                  <a class="source" href="loadreport.html">
+                    loadreport.js
+                  </a>
+                </li>
+              
+                
+                <li>
+                  <a class="source" href="schedule-loadreport.html">
+                    schedule-loadreport.js
+                  </a>
+                </li>
+              
+                
+                <li>
+                  <a class="source" href="speedreport.html">
+                    speedreport.js
+                  </a>
+                </li>
+              
+            </ol>
+          </div>
+        
+      </div>
+
+      
+        
+        
+        
+          <div class='highlight'><pre><span class="hljs-keyword">var</span> exec = <span class="hljs-built_in">require</span>(<span class="hljs-string">'child_process'</span>).exec;
+
+<span class="hljs-keyword">var</span> increment = <span class="hljs-number">0</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">runLoadreport</span><span class="hljs-params">()</span>{</span>
+    exec(<span class="hljs-string">'phantomjs loadreport.js http://www.people.com performance csv'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(error, stdout, stderr)</span> {</span>
+        exec(<span class="hljs-string">'mv reports/loadreport.csv reports/loadreport-'</span> + increment + <span class="hljs-string">'.csv'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(error, stdout, stderr)</span>{</span>
+        	console.log(<span class="hljs-string">'CSV '</span> + increment + <span class="hljs-string">' done.'</span>);
+        });
+    });
+    exec(<span class="hljs-string">'phantomjs loadreport.js http://www.people.com performancecache json'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(error, stdout, stderr)</span> {</span>
+        exec(<span class="hljs-string">'mv reports/loadreport.json reports/loadreport-'</span> + increment + <span class="hljs-string">'.json'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(error, stdout, stderr)</span>{</span>
+        	console.log(<span class="hljs-string">'JSON '</span> + increment + <span class="hljs-string">' done.'</span>);
+        });
+    });
+    exec(<span class="hljs-string">'phantomjs loadreport.js http://www.people.com filmstrip'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(error, stdout, stderr)</span> {</span>
+        exec(<span class="hljs-string">'mkdir filmstrip/filmstrip-'</span> + increment, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(error, stdout, stderr)</span>{</span>
+        	exec(<span class="hljs-string">'mv filmstrip/screenshot*.png filmstrip/filmstrip-'</span> + increment + <span class="hljs-string">'/'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(error, stdout, stderr)</span>{</span>
+        		console.log(<span class="hljs-string">'Filmstrip '</span> + increment + <span class="hljs-string">' done.'</span>)
+        	});
+        });
+    });
+    makeTimeout();
+    increment++;    
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">makeTimeout</span><span class="hljs-params">()</span>{</span>
+    <span class="hljs-keyword">var</span> d = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+    <span class="hljs-keyword">var</span> min = d.getMinutes();
+    <span class="hljs-keyword">var</span> sec = d.getSeconds();
+
+    <span class="hljs-keyword">if</span>((min == <span class="hljs-string">'00'</span>) &amp;&amp; (sec == <span class="hljs-string">'00'</span>)) {
+        runLoadreport();
+    } <span class="hljs-keyword">else</span> {
+        setTimeout(runLoadreport, (<span class="hljs-number">60</span>*(<span class="hljs-number">60</span>-min)+(<span class="hljs-number">60</span>-sec))*<span class="hljs-number">1000</span>);
+    }            
+}
+
+makeTimeout();</pre></div>
+        
+      
+      <div class="fleur">h</div>
+    </div>
+  </div>
+</body>
+</html>

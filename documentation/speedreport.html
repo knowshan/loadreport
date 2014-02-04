@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>speedreport.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="public/stylesheets/normalize.css" />
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="page">
+
+      <div class="header">
+        
+          <h1>speedreport.js</h1>
+        
+
+        
+          <div class="toc">
+            <h3>Table of Contents</h3>
+            <ol>
+              
+                
+                <li>
+                  <a class="source" href="main.html">
+                    main.js
+                  </a>
+                </li>
+              
+                
+                <li>
+                  <a class="source" href="webserver.html">
+                    webserver.js
+                  </a>
+                </li>
+              
+                
+                <li>
+                  <a class="source" href="loadreport.html">
+                    loadreport.js
+                  </a>
+                </li>
+              
+                
+                <li>
+                  <a class="source" href="schedule-loadreport.html">
+                    schedule-loadreport.js
+                  </a>
+                </li>
+              
+                
+                <li>
+                  <a class="source" href="speedreport.html">
+                    speedreport.js
+                  </a>
+                </li>
+              
+            </ol>
+          </div>
+        
+      </div>
+
+      
+        
+        
+        
+          <div class='highlight'><pre><span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>)
+    , page = <span class="hljs-built_in">require</span>(<span class="hljs-string">'webpage'</span>).create()
+    , t
+    , address=phantom.args[<span class="hljs-number">0</span>]
+    , requests={}
+    , responses={}
+    , pageInfo={url:address, assets:[]};
+
+<span class="hljs-keyword">if</span> (phantom.args.length === <span class="hljs-number">0</span>) {
+    console.log(<span class="hljs-string">'Usage: speedreport.js &lt;URL&gt;'</span>);
+    phantom.exit();
+}
+page.onResourceRequested = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(r)</span> {</span>
+    <span class="hljs-keyword">if</span>(r)requests[r.id]=r;
+};
+page.onResourceReceived = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(r)</span> {</span>
+    <span class="hljs-keyword">if</span>(r &amp;&amp; !(r.id <span class="hljs-keyword">in</span> responses)){
+        responses[r.id]=r;
+    } <span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">var</span> i <span class="hljs-keyword">in</span> responses[r.id]){
+            <span class="hljs-keyword">if</span>(responses[r.id].hasOwnProperty(i) &amp;&amp; !(i <span class="hljs-keyword">in</span> r)){
+                r[i]=responses[r.id][i];
+            }
+        }
+        r.received=responses[r.id].time;
+        pageInfo.assets.push({
+            request:requests[r.id],
+            response:r
+        });
+    }
+};
+page.onError=<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
+    console.error(<span class="hljs-string">"error"</span>);
+    console.dir(<span class="hljs-built_in">arguments</span>);
+}
+t = <span class="hljs-built_in">Date</span>.now();
+page.open(address, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(status)</span> {</span>
+    pageInfo.requestTime=t;
+    pageInfo.responseTime=<span class="hljs-built_in">Date</span>.now();
+    <span class="hljs-keyword">if</span> (status !== <span class="hljs-string">'success'</span>) {
+        console.error(<span class="hljs-string">'/* FAIL to load the address */'</span>);
+    } <span class="hljs-keyword">else</span> {
+        t = <span class="hljs-built_in">Date</span>.now() - t;
+        <span class="hljs-keyword">try</span> {
+            <span class="hljs-keyword">var</span> data=<span class="hljs-built_in">JSON</span>.stringify(pageInfo, <span class="hljs-literal">undefined</span>, <span class="hljs-number">4</span>)
+            printToFile(data);
+        }<span class="hljs-keyword">catch</span>(e){
+            console.error(<span class="hljs-string">"error writing to file "</span>,e);
+        }
+    }
+    phantom.exit();
+});
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">printToFile</span><span class="hljs-params">(data)</span> {</span>
+    <span class="hljs-keyword">var</span> f
+        , g
+        , html
+        , myfile
+        , fileid
+        , myjson
+        , jspath
+        , keys = []
+        , values = []
+        , extension = <span class="hljs-string">'html'</span>;
+
+    <span class="hljs-keyword">if</span>(!phantom.args[<span class="hljs-number">1</span>]){
+        fileid = phantom.args[<span class="hljs-number">0</span>].replace(<span class="hljs-string">'http://'</span>,<span class="hljs-string">''</span>).replace(<span class="hljs-string">'https://'</span>,<span class="hljs-string">''</span>).replace(<span class="hljs-regexp">/\//g</span>,<span class="hljs-string">''</span>);
+        fileid = fileid.split(<span class="hljs-string">'?'</span>)[<span class="hljs-number">0</span>];
+        myjson = <span class="hljs-string">'speedreports/'</span> + fileid + <span class="hljs-string">'.js'</span>;
+        myfile = <span class="hljs-string">'speedreports/'</span> + fileid + <span class="hljs-string">'.'</span> + extension;
+    }<span class="hljs-keyword">else</span>{
+        fileid = phantom.args[<span class="hljs-number">1</span>];
+        myjson = fileid;
+        myfile = <span class="hljs-literal">null</span>;
+    }
+
+    <span class="hljs-keyword">if</span>(myfile!==<span class="hljs-literal">null</span>){
+        <span class="hljs-keyword">try</span> {
+            data = <span class="hljs-string">"var reportdata = "</span> + data + <span class="hljs-string">";"</span>;
+    		<span class="hljs-keyword">if</span>(fs.exists(myfile)){
+    		    fs.remove(myfile);
+    		}
+            <span class="hljs-keyword">if</span>(!fs.exists(<span class="hljs-string">'speedreport.html'</span>)){
+                html = fs.read(<span class="hljs-string">'loadreport/speedreport.html'</span>);
+            }<span class="hljs-keyword">else</span>{
+                html = fs.read(<span class="hljs-string">'speedreport.html'</span>);
+            }
+            <span class="hljs-keyword">if</span>(phantom.args[<span class="hljs-number">1</span>]){
+                html=html.replace(<span class="hljs-string">'{{REPORT_DATA_URI}}'</span>, <span class="hljs-string">'\/rest\/performance\/js\?uuid\='</span> + myjson);
+            }<span class="hljs-keyword">else</span>{
+                html=html.replace(<span class="hljs-string">'{{REPORT_DATA_URI}}'</span>, fileid + <span class="hljs-string">'.js'</span>);
+            }
+            html=html.replace(<span class="hljs-string">'{{url}}'</span>, phantom.args[<span class="hljs-number">0</span>]);
+            f = fs.open(myfile, <span class="hljs-string">"w"</span>);
+            f.write(html);
+            f.flush();
+            f.close();
+        } <span class="hljs-keyword">catch</span> (e) {
+            console.log(<span class="hljs-string">"problem writing to file"</span>,e);
+        }
+    }
+
+    <span class="hljs-keyword">try</span> {
+        g = fs.open(myjson, <span class="hljs-string">"w"</span>);
+        g.write(data);
+        g.flush();
+        g.close();
+    } <span class="hljs-keyword">catch</span> (e) {
+        console.error(<span class="hljs-string">"problem writing to file"</span>,e);
+    }
+}</pre></div>
+        
+      
+      <div class="fleur">h</div>
+    </div>
+  </div>
+</body>
+</html>
