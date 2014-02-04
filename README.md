@@ -33,7 +33,7 @@ Generate a report
 
 Run the webserver
 
-* ``` ./node_modules/loadreport/lib/webserver.js [www_dir]```
+* ``` node ./node_modules/loadreport/lib/webserver.js [www_dir]```
 
 Run your favorite browser to **http://localhost:8080/**.
 

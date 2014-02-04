@@ -4,7 +4,6 @@ var should = require('should');
 var grunt = require('grunt');
 var http = require('http');
 var express = require('express');
-var request = require('request');
 var log = require('npmlog');
 
 log.level = "silent";
