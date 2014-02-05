@@ -20,9 +20,9 @@ describe('loadreport tests', function () {
 
   before(function(){
 
-    log.level = "silent";
     log.level = "info";
     log.level = "log";
+    log.level = "silent";
 
     // to really mute grunt
     grunt.log.muted = !false;
@@ -64,6 +64,23 @@ describe('loadreport tests', function () {
 
 
   var url = "http://localhost:8080/index.html";
+  var properties = [
+    'url',
+    'domReadystateLoading',
+    'domReadystateInteractive',
+    'windowOnload',
+    'elapsedLoadTime',
+    'numberOfResources',
+    'totalResourcesTime',
+    'slowestResource',
+    'largestResource',
+    'totalResourcesSize',
+    'nonReportingResources',
+    'timeStamp',
+    'date',
+    'time',
+    'errors'
+  ];
 
   it('should expose the wrappers path correctly', function() {
     var loadreport = require("../lib/main.js");
@@ -92,41 +109,13 @@ describe('loadreport tests', function () {
       report.should.not.be.null;
       if( report.length ){
         report.length.should.be.greaterThan(0);
-        report[0].should.have.properties(
-          'url',
-          'domReadystateLoading',
-          'domReadystateInteractive',
-          'windowOnload',
-          'elapsedLoadTime',
-          'numberOfResources',
-          'totalResourcesTime',
-          'slowestResource',
-          'largestResource',
-          'totalResourcesSize',
-          'nonReportingResources',
-          'timeStamp',
-          'date',
-          'time',
-          'errors'
-        );
+        for( var p in properties ){
+          report[0].should.have.properties( properties[p] );
+        }
       }else{
-        report.should.have.properties(
-          'url',
-          'domReadystateLoading',
-          'domReadystateInteractive',
-          'windowOnload',
-          'elapsedLoadTime',
-          'numberOfResources',
-          'totalResourcesTime',
-          'slowestResource',
-          'largestResource',
-          'totalResourcesSize',
-          'nonReportingResources',
-          'timeStamp',
-          'date',
-          'time',
-          'errors'
-        );
+        for( var p in properties ){
+          report.should.have.properties( properties[p] );
+        }
       }
       done();
     });
@@ -140,23 +129,16 @@ describe('loadreport tests', function () {
       var report = JSON.parse(c);
       c.length.should.be.greaterThan(0);
       report.should.not.be.null;
-      report.should.have.properties(
-        'url',
-        'domReadystateLoading',
-        'domReadystateInteractive',
-        'windowOnload',
-        'elapsedLoadTime',
-        'numberOfResources',
-        'totalResourcesTime',
-        'slowestResource',
-        'largestResource',
-        'totalResourcesSize',
-        'nonReportingResources',
-        'timeStamp',
-        'date',
-        'time',
-        'errors'
-      );
+      if( report.length ){
+        report.length.should.be.greaterThan(0);
+        for( var p in properties ){
+          report[0].should.have.properties( properties[p] );
+        }
+      }else{
+        for( var p in properties ){
+          report.should.have.properties( properties[p] );
+        }
+      }
       done();
     });
   });
@@ -205,9 +187,55 @@ describe('loadreport tests', function () {
   it('should produce a speed report test', function(done) {
     var loadreport = require("../lib/main.js");
     var outfile = "output/speedreports/localhost_8080index.html.html";
-    run_phantomjs([loadreport.speedreports, "--url="+url, "--output=output/"],function(code,stdout,stderr){
+    run_phantomjs([loadreport.speedreports, "--url="+url, "--output=output/", "--template=template/speedreport.html"],function(code,stdout,stderr){
       var c = grunt.file.read(outfile);
       c.length.should.be.greaterThan(0);
+      done();
+    });
+  });
+
+
+  it('should produce a speed report test', function(done) {
+    var outfile = "output/speedreports/localhost_8080index.html.html";
+
+    var args = [__dirname+"/../lib/speedreport.js", "--url="+url, "--output=output/"];
+
+    log.info('stdout', '', phantomjs.path+" "+args.join(" "));
+
+    var node_process = require('child_process').spawn("node", args);
+    node_process.stdout.on('data', function (data) {
+      log.info('stdout', '', data.toString());
+    });
+    node_process.stderr.on('data', function (data) {
+      log.info('stderr', '', data.toString());
+    });
+    node_process.on('exit', function (code) {
+      var c = grunt.file.read(outfile);
+      c.length.should.be.greaterThan(0);
+      done();
+    });
+  });
+  it('should display the output', function(done) {
+    var args = [__dirname+"/../lib/loadreport.js", "--url="+url, "--output=output/"];
+
+    log.info('stdout', '', phantomjs.path+" "+args.join(" "));
+
+    var stdout = "";
+    var stderr = "";
+
+    var node_process = require('child_process').spawn("node", args);
+    node_process.stdout.on('data', function (data) {
+      log.info('stdout', '', data.toString());
+      stdout += data.toString();
+    });
+    node_process.stderr.on('data', function (data) {
+      log.info('stderr', '', data.toString());
+      stderr += data.toString();
+    });
+    node_process.on('exit', function (code) {
+      stdout.should.match(/(DOMContentLoaded)/);
+      stdout.should.match(/(onload)/);
+      stdout.should.match(/(Elapsed load time:\s+[0-9]+ms)/);
       done();
     });
   });
