@@ -1,3 +1,9 @@
+# loadreport
+Builds a report of DOM and resource load times using phantomjs
+
+## install
+* ``` npm install maboitespam/loadreport -g --production ```
+
 # loadreport.js
 [PhantomJS](http://www.phantomjs.org/) 1.9+ is required to run loadreport.js or speedreport.js.
 
@@ -5,13 +11,13 @@ You can take it for a spin in [this live demo](http://loadreport.wesleyhales.com
 
 ## loadreport Examples
 ### loadreport will write, to csv, json or junit format xml (filmstrip writes to png):
-* ``` phantomjs loadreport.js --url=http://cnn.com performance csv ```
-![loadreport](https://raw.github.com/wesleyhales/loadreport/master/readme/cnn-loadreport.png)
+* ``` loadreport --url=http://cnn.com performance csv ```
+![loadreport](https://raw.github.com/maboiteaspam/loadreport/master/doc/readme/cnn-loadreport.png)
     
-* ``` phantomjs loadreport.js --url=http://cnn.com --task=performancecache --format=json ```
+* ``` loadreport --url=http://cnn.com --task=performancecache --format=json ```
     
-* ``` phantomjs loadreport.js --url=http://cnn.com --task=filmstrip ```
-![loadreport filmstrip](https://raw.github.com/wesleyhales/loadreport/master/readme/cnn-filmstrip.png)
+* ``` loadreport --url=http://cnn.com --task=filmstrip ```
+![loadreport filmstrip](https://raw.github.com/maboiteaspam/loadreport/master/doc/readme/cnn-filmstrip.png)
 
 ```
 Usage:  phantomjs loadreport.js --help
@@ -32,12 +38,12 @@ Usage:  phantomjs loadreport.js --help
 
 ## speedreport Examples
 ### speedreport produces a json and html file which will display detailed resource charting
-* ``` phantomjs speedreport.js --url=http://www.cnn.com```
-![speedreport](https://raw.github.com/wesleyhales/loadreport/master/readme/speedreport.png)
+* ``` speedreport --url=http://www.cnn.com```
+![speedreport](https://raw.github.com/maboiteaspam/loadreport/master/doc/readme/speedreport.png)
 
-* ``` phantomjs speedreport.js --url=http://www.cnn.com --output=output/```
+* ``` speedreport --url=http://www.cnn.com --output=output/```
 
-* ``` phantomjs speedreport.js --url=http://www.cnn.com --format=json```
+* ``` speedreport --url=http://www.cnn.com --format=json```
 
 ```
 Usage:  phantomjs speedreport.js --help
