@@ -77,7 +77,7 @@ http://maboiteaspam.github.io/loadreport/documentation/loadreport.html
 
 http://maboiteaspam.github.io/loadreport/documentation/build.html
 
-http://maboiteaspam.github.io/loadreport/documentation/test.html
+http://maboiteaspam.github.io/loadreport/documentation/tests.html
 
 http://maboiteaspam.github.io/loadreport/documentation/main.html
 
