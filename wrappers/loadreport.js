@@ -11,7 +11,7 @@ var process = {
     phantom.exit();
   }
 }
-var Getopt = require("./node_modules/node-getopt/lib/getopt.js");
+var Getopt = require(fs.workingDirectory+"/node_modules/node-getopt/lib/getopt.js");
 
 var getopt = new Getopt([
   ['u' , 'url=ARG'  , 'the URL of the site to load test'],
