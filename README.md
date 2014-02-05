@@ -4,6 +4,13 @@ Builds a report of DOM and resource load times using phantomjs
 ## install
 * ``` npm install maboitespam/loadreport -g --production ```
 
+## usage
+* ``` loadreport --url=http://cnn.com ```
+* ``` speedreport --url=http://cnn.com ```
+* ``` webserver ```
+
+
+
 # loadreport.js
 [PhantomJS](http://www.phantomjs.org/) 1.9+ is required to run loadreport.js or speedreport.js.
 
@@ -58,17 +65,13 @@ Usage:  phantomjs speedreport.js --help
 ## Embedded web server
 ### Quickly display speedreport HTML files
 
-Install npm packages
-
-* ``` npm install```
-
 Generate a report
 
 * ``` phantomjs speedreport.js --url=http://www.cnn.com```
 
 Run the webserver
 
-* ``` node ./node_modules/loadreport/lib/webserver.js [www_dir]```
+* ``` webserver [www_dir]```
 
 Run your favorite browser to **http://localhost:8080/**.
 
