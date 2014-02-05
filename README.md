@@ -1,24 +1,57 @@
 # loadreport.js
-[PhantomJS](http://www.phantomjs.org/) 1.6+ is required to run loadreport.js or speedreport.js.
+[PhantomJS](http://www.phantomjs.org/) 1.9+ is required to run loadreport.js or speedreport.js.
 
 You can take it for a spin in [this live demo](http://loadreport.wesleyhales.com/report.html).
 
 ## loadreport Examples
 ### loadreport will write, to csv, json or junit format xml (filmstrip writes to png):
-* ``` phantomjs loadreport.js http://cnn.com performance csv ```
+* ``` phantomjs loadreport.js --url=http://cnn.com performance csv ```
 ![loadreport](https://raw.github.com/wesleyhales/loadreport/master/readme/cnn-loadreport.png)
     
-* ``` phantomjs loadreport.js http://cnn.com performancecache json ```
+* ``` phantomjs loadreport.js --url=http://cnn.com --task=performancecache --format=json ```
     
-* ``` phantomjs loadreport.js http://cnn.com filmstrip ``` 
+* ``` phantomjs loadreport.js --url=http://cnn.com --task=filmstrip ```
 ![loadreport filmstrip](https://raw.github.com/wesleyhales/loadreport/master/readme/cnn-filmstrip.png)
 
+* ``` phantomjs loadreport.js --help```
+
+```
+Usage:  phantomjs loadreport.js --help
+
+  -u, --url=ARG                    the URL of the site to load test
+  -t, --task=ARG                   the task to perform
+      --config[=CONFIG_FILE]
+      --format[=OUTPUT_FORMAT]
+      --output[=CONFIG_FILE]
+      --wait[=WAIT]
+      --cachewait[=CACHE_WAIT]
+      --user_agent[=USER_AGENT]
+      --file_suffix[=FILE_SUFFIX]
+  -w, --wipe
+  -h, --help
+  -v, --verbose
+```
 
 ## speedreport Examples
 ### speedreport produces a json and html file which will display detailed resource charting
-* ``` phantomjs speedreport.js http://www.cnn.com```
+* ``` phantomjs speedreport.js --url=http://www.cnn.com```
 ![speedreport](https://raw.github.com/wesleyhales/loadreport/master/readme/speedreport.png)
 
+* ``` phantomjs speedreport.js --url=http://www.cnn.com --output=output/```
+
+* ``` phantomjs speedreport.js --url=http://www.cnn.com --format=json```
+
+* ``` phantomjs speedreport.js --help```
+
+```
+Usage:  phantomjs speedreport.js --help
+
+  -u, --url=ARG               the URL of the site to load test
+      --output[=CONFIG_FILE]
+      --format[=FILE_FORMAT]
+  -h, --help
+  -v, --verbose
+```
 
 ## Embedded web server
 ### Quickly display speedreport HTML files
@@ -29,7 +62,7 @@ Install npm packages
 
 Generate a report
 
-* ``` phantomjs speedreport.js http://www.cnn.com```
+* ``` phantomjs speedreport.js --url=http://www.cnn.com```
 
 Run the webserver
 
