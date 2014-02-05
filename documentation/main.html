@@ -37,27 +37,6 @@
               
                 
                 <li>
-                  <a class="source" href="loadreport.html">
-                    loadreport.js
-                  </a>
-                </li>
-              
-                
-                <li>
-                  <a class="source" href="schedule-loadreport.html">
-                    schedule-loadreport.js
-                  </a>
-                </li>
-              
-                
-                <li>
-                  <a class="source" href="speedreport.html">
-                    speedreport.js
-                  </a>
-                </li>
-              
-                
-                <li>
                   <a class="source" href="build.html">
                     build.js
                   </a>
@@ -97,8 +76,9 @@ require(“loadreport”).speedreports;</p>
         
           <div class='highlight'><pre>(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(exports)</span> {</span>
 
-  exports.load_reports = path.resolve(__dirname+<span class="hljs-string">"/../"</span>)+<span class="hljs-string">"/loadreport.js"</span>;
-  exports.speedreports = path.resolve(__dirname+<span class="hljs-string">"/../"</span>)+<span class="hljs-string">"/speedreport.js"</span>;
+  exports.load_reports = path.resolve(__dirname+<span class="hljs-string">"/../wrappers/"</span>)+<span class="hljs-string">"/loadreport.js"</span>;
+  exports.speedreports = path.resolve(__dirname+<span class="hljs-string">"/../wrappers/"</span>)+<span class="hljs-string">"/speedreport.js"</span>;
+  exports.speedreports_template = path.resolve(__dirname+<span class="hljs-string">"/../template/"</span>)+<span class="hljs-string">"/speedreport.html"</span>;
 
 }(<span class="hljs-keyword">typeof</span> exports === <span class="hljs-string">'object'</span> &amp;&amp; exports || <span class="hljs-keyword">this</span>));</pre></div>
         

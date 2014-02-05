@@ -37,27 +37,6 @@
               
                 
                 <li>
-                  <a class="source" href="loadreport.html">
-                    loadreport.js
-                  </a>
-                </li>
-              
-                
-                <li>
-                  <a class="source" href="schedule-loadreport.html">
-                    schedule-loadreport.js
-                  </a>
-                </li>
-              
-                
-                <li>
-                  <a class="source" href="speedreport.html">
-                    speedreport.js
-                  </a>
-                </li>
-              
-                
-                <li>
                   <a class="source" href="build.html">
                     build.js
                   </a>
@@ -101,9 +80,9 @@ describe(<span class="hljs-string">'loadreport tests'</span>, <span class="hljs-
 
   before(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
 
-    log.level = <span class="hljs-string">"silent"</span>;
     log.level = <span class="hljs-string">"info"</span>;
-    log.level = <span class="hljs-string">"log"</span>;</pre></div>
+    log.level = <span class="hljs-string">"log"</span>;
+    log.level = <span class="hljs-string">"silent"</span>;</pre></div>
         
       
         
@@ -179,6 +158,23 @@ describe(<span class="hljs-string">'loadreport tests'</span>, <span class="hljs-
 
 
   <span class="hljs-keyword">var</span> url = <span class="hljs-string">"http://localhost:8080/index.html"</span>;
+  <span class="hljs-keyword">var</span> properties = [
+    <span class="hljs-string">'url'</span>,
+    <span class="hljs-string">'domReadystateLoading'</span>,
+    <span class="hljs-string">'domReadystateInteractive'</span>,
+    <span class="hljs-string">'windowOnload'</span>,
+    <span class="hljs-string">'elapsedLoadTime'</span>,
+    <span class="hljs-string">'numberOfResources'</span>,
+    <span class="hljs-string">'totalResourcesTime'</span>,
+    <span class="hljs-string">'slowestResource'</span>,
+    <span class="hljs-string">'largestResource'</span>,
+    <span class="hljs-string">'totalResourcesSize'</span>,
+    <span class="hljs-string">'nonReportingResources'</span>,
+    <span class="hljs-string">'timeStamp'</span>,
+    <span class="hljs-string">'date'</span>,
+    <span class="hljs-string">'time'</span>,
+    <span class="hljs-string">'errors'</span>
+  ];
 
   it(<span class="hljs-string">'should expose the wrappers path correctly'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
     <span class="hljs-keyword">var</span> loadreport = <span class="hljs-built_in">require</span>(<span class="hljs-string">"../lib/main.js"</span>);
@@ -207,41 +203,13 @@ describe(<span class="hljs-string">'loadreport tests'</span>, <span class="hljs-
       report.should.not.be.null;
       <span class="hljs-keyword">if</span>( report.length ){
         report.length.should.be.greaterThan(<span class="hljs-number">0</span>);
-        report[<span class="hljs-number">0</span>].should.have.properties(
-          <span class="hljs-string">'url'</span>,
-          <span class="hljs-string">'domReadystateLoading'</span>,
-          <span class="hljs-string">'domReadystateInteractive'</span>,
-          <span class="hljs-string">'windowOnload'</span>,
-          <span class="hljs-string">'elapsedLoadTime'</span>,
-          <span class="hljs-string">'numberOfResources'</span>,
-          <span class="hljs-string">'totalResourcesTime'</span>,
-          <span class="hljs-string">'slowestResource'</span>,
-          <span class="hljs-string">'largestResource'</span>,
-          <span class="hljs-string">'totalResourcesSize'</span>,
-          <span class="hljs-string">'nonReportingResources'</span>,
-          <span class="hljs-string">'timeStamp'</span>,
-          <span class="hljs-string">'date'</span>,
-          <span class="hljs-string">'time'</span>,
-          <span class="hljs-string">'errors'</span>
-        );
+        <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> p <span class="hljs-keyword">in</span> properties ){
+          report[<span class="hljs-number">0</span>].should.have.properties( properties[p] );
+        }
       }<span class="hljs-keyword">else</span>{
-        report.should.have.properties(
-          <span class="hljs-string">'url'</span>,
-          <span class="hljs-string">'domReadystateLoading'</span>,
-          <span class="hljs-string">'domReadystateInteractive'</span>,
-          <span class="hljs-string">'windowOnload'</span>,
-          <span class="hljs-string">'elapsedLoadTime'</span>,
-          <span class="hljs-string">'numberOfResources'</span>,
-          <span class="hljs-string">'totalResourcesTime'</span>,
-          <span class="hljs-string">'slowestResource'</span>,
-          <span class="hljs-string">'largestResource'</span>,
-          <span class="hljs-string">'totalResourcesSize'</span>,
-          <span class="hljs-string">'nonReportingResources'</span>,
-          <span class="hljs-string">'timeStamp'</span>,
-          <span class="hljs-string">'date'</span>,
-          <span class="hljs-string">'time'</span>,
-          <span class="hljs-string">'errors'</span>
-        );
+        <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> p <span class="hljs-keyword">in</span> properties ){
+          report.should.have.properties( properties[p] );
+        }
       }
       done();
     });
@@ -255,23 +223,16 @@ describe(<span class="hljs-string">'loadreport tests'</span>, <span class="hljs-
       <span class="hljs-keyword">var</span> report = <span class="hljs-built_in">JSON</span>.parse(c);
       c.length.should.be.greaterThan(<span class="hljs-number">0</span>);
       report.should.not.be.null;
-      report.should.have.properties(
-        <span class="hljs-string">'url'</span>,
-        <span class="hljs-string">'domReadystateLoading'</span>,
-        <span class="hljs-string">'domReadystateInteractive'</span>,
-        <span class="hljs-string">'windowOnload'</span>,
-        <span class="hljs-string">'elapsedLoadTime'</span>,
-        <span class="hljs-string">'numberOfResources'</span>,
-        <span class="hljs-string">'totalResourcesTime'</span>,
-        <span class="hljs-string">'slowestResource'</span>,
-        <span class="hljs-string">'largestResource'</span>,
-        <span class="hljs-string">'totalResourcesSize'</span>,
-        <span class="hljs-string">'nonReportingResources'</span>,
-        <span class="hljs-string">'timeStamp'</span>,
-        <span class="hljs-string">'date'</span>,
-        <span class="hljs-string">'time'</span>,
-        <span class="hljs-string">'errors'</span>
-      );
+      <span class="hljs-keyword">if</span>( report.length ){
+        report.length.should.be.greaterThan(<span class="hljs-number">0</span>);
+        <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> p <span class="hljs-keyword">in</span> properties ){
+          report[<span class="hljs-number">0</span>].should.have.properties( properties[p] );
+        }
+      }<span class="hljs-keyword">else</span>{
+        <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> p <span class="hljs-keyword">in</span> properties ){
+          report.should.have.properties( properties[p] );
+        }
+      }
       done();
     });
   });
@@ -320,9 +281,55 @@ describe(<span class="hljs-string">'loadreport tests'</span>, <span class="hljs-
   it(<span class="hljs-string">'should produce a speed report test'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(done)</span> {</span>
     <span class="hljs-keyword">var</span> loadreport = <span class="hljs-built_in">require</span>(<span class="hljs-string">"../lib/main.js"</span>);
     <span class="hljs-keyword">var</span> outfile = <span class="hljs-string">"output/speedreports/localhost_8080index.html.html"</span>;
-    run_phantomjs([loadreport.speedreports, <span class="hljs-string">"--url="</span>+url, <span class="hljs-string">"--output=output/"</span>],<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(code,stdout,stderr)</span>{</span>
+    run_phantomjs([loadreport.speedreports, <span class="hljs-string">"--url="</span>+url, <span class="hljs-string">"--output=output/"</span>, <span class="hljs-string">"--template=template/speedreport.html"</span>],<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(code,stdout,stderr)</span>{</span>
       <span class="hljs-keyword">var</span> c = grunt.file.read(outfile);
       c.length.should.be.greaterThan(<span class="hljs-number">0</span>);
+      done();
+    });
+  });
+
+
+  it(<span class="hljs-string">'should produce a speed report test'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(done)</span> {</span>
+    <span class="hljs-keyword">var</span> outfile = <span class="hljs-string">"output/speedreports/localhost_8080index.html.html"</span>;
+
+    <span class="hljs-keyword">var</span> args = [__dirname+<span class="hljs-string">"/../lib/speedreport.js"</span>, <span class="hljs-string">"--url="</span>+url, <span class="hljs-string">"--output=output/"</span>];
+
+    log.info(<span class="hljs-string">'stdout'</span>, <span class="hljs-string">''</span>, phantomjs.path+<span class="hljs-string">" "</span>+args.join(<span class="hljs-string">" "</span>));
+
+    <span class="hljs-keyword">var</span> node_process = <span class="hljs-built_in">require</span>(<span class="hljs-string">'child_process'</span>).spawn(<span class="hljs-string">"node"</span>, args);
+    node_process.stdout.on(<span class="hljs-string">'data'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(data)</span> {</span>
+      log.info(<span class="hljs-string">'stdout'</span>, <span class="hljs-string">''</span>, data.toString());
+    });
+    node_process.stderr.on(<span class="hljs-string">'data'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(data)</span> {</span>
+      log.info(<span class="hljs-string">'stderr'</span>, <span class="hljs-string">''</span>, data.toString());
+    });
+    node_process.on(<span class="hljs-string">'exit'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(code)</span> {</span>
+      <span class="hljs-keyword">var</span> c = grunt.file.read(outfile);
+      c.length.should.be.greaterThan(<span class="hljs-number">0</span>);
+      done();
+    });
+  });
+  it(<span class="hljs-string">'should display the output'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(done)</span> {</span>
+    <span class="hljs-keyword">var</span> args = [__dirname+<span class="hljs-string">"/../lib/loadreport.js"</span>, <span class="hljs-string">"--url="</span>+url, <span class="hljs-string">"--output=output/"</span>];
+
+    log.info(<span class="hljs-string">'stdout'</span>, <span class="hljs-string">''</span>, phantomjs.path+<span class="hljs-string">" "</span>+args.join(<span class="hljs-string">" "</span>));
+
+    <span class="hljs-keyword">var</span> stdout = <span class="hljs-string">""</span>;
+    <span class="hljs-keyword">var</span> stderr = <span class="hljs-string">""</span>;
+
+    <span class="hljs-keyword">var</span> node_process = <span class="hljs-built_in">require</span>(<span class="hljs-string">'child_process'</span>).spawn(<span class="hljs-string">"node"</span>, args);
+    node_process.stdout.on(<span class="hljs-string">'data'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(data)</span> {</span>
+      log.info(<span class="hljs-string">'stdout'</span>, <span class="hljs-string">''</span>, data.toString());
+      stdout += data.toString();
+    });
+    node_process.stderr.on(<span class="hljs-string">'data'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(data)</span> {</span>
+      log.info(<span class="hljs-string">'stderr'</span>, <span class="hljs-string">''</span>, data.toString());
+      stderr += data.toString();
+    });
+    node_process.on(<span class="hljs-string">'exit'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(code)</span> {</span>
+      stdout.should.match(<span class="hljs-regexp">/(DOMContentLoaded)/</span>);
+      stdout.should.match(<span class="hljs-regexp">/(onload)/</span>);
+      stdout.should.match(<span class="hljs-regexp">/(Elapsed load time:\s+[0-9]+ms)/</span>);
       done();
     });
   });
