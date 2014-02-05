@@ -7,8 +7,8 @@ var express = require('express');
 var log = require('npmlog');
 
 var url_congestion = {
-  '/index.js':[1500,3000],
-  '/data.js':[700,800]
+  '/index.js':[500,1000],
+  '/data.js':[500,1000]
 };
 
 var www_dir = __dirname + '/www';
@@ -16,7 +16,7 @@ var app_server;
 
 describe('loadreport tests', function () {
 
-  this.timeout(4000);
+  this.timeout(15000);
 
   before(function(){
 
