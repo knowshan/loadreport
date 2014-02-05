@@ -56,6 +56,20 @@
                   </a>
                 </li>
               
+                
+                <li>
+                  <a class="source" href="build.html">
+                    build.js
+                  </a>
+                </li>
+              
+                
+                <li>
+                  <a class="source" href="tests.html">
+                    tests.js
+                  </a>
+                </li>
+              
             </ol>
           </div>
         
@@ -65,41 +79,77 @@
         
         
         
-          <div class='highlight'><pre><span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+          <div class='highlight'><pre>
+
+<span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
 <span class="hljs-keyword">var</span> WebPage = <span class="hljs-built_in">require</span>(<span class="hljs-string">'webpage'</span>);
+
+
+<span class="hljs-keyword">var</span> process = {
+  argv:<span class="hljs-built_in">require</span>(<span class="hljs-string">'system'</span>).args,
+  argc:<span class="hljs-built_in">require</span>(<span class="hljs-string">'system'</span>).args.length,
+  exit:<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
+    phantom.exit();
+  }
+}
+<span class="hljs-keyword">var</span> Getopt = <span class="hljs-built_in">require</span>(<span class="hljs-string">"./node_modules/node-getopt/lib/getopt.js"</span>);
+
+<span class="hljs-keyword">var</span> getopt = <span class="hljs-keyword">new</span> Getopt([
+  [<span class="hljs-string">'u'</span> , <span class="hljs-string">'url=ARG'</span>  , <span class="hljs-string">'the URL of the site to load test'</span>],
+  [<span class="hljs-string">'t'</span> , <span class="hljs-string">'task=ARG'</span>  , <span class="hljs-string">'the task to perform'</span>],
+  [<span class="hljs-string">''</span> , <span class="hljs-string">'config[=CONFIG_FILE]'</span>],
+  [<span class="hljs-string">''</span> , <span class="hljs-string">'format[=OUTPUT_FORMAT]'</span>],
+  [<span class="hljs-string">''</span> , <span class="hljs-string">'output[=CONFIG_FILE]'</span>],
+  [<span class="hljs-string">''</span> , <span class="hljs-string">'wait[=WAIT]'</span>],
+  [<span class="hljs-string">''</span> , <span class="hljs-string">'cachewait[=CACHE_WAIT]'</span>],
+  [<span class="hljs-string">''</span> , <span class="hljs-string">'user_agent[=USER_AGENT]'</span>],
+  [<span class="hljs-string">''</span> , <span class="hljs-string">'file_suffix[=FILE_SUFFIX]'</span>],
+  [<span class="hljs-string">'w'</span> , <span class="hljs-string">'wipe'</span>],
+  [<span class="hljs-string">'h'</span> , <span class="hljs-string">'help'</span>],
+  [<span class="hljs-string">'v'</span> , <span class="hljs-string">'verbose'</span>]
+]).bindHelp();
+
+<span class="hljs-keyword">var</span> opt = getopt.parse(<span class="hljs-built_in">require</span>(<span class="hljs-string">'system'</span>).args);
+
+<span class="hljs-keyword">if</span>( !opt.options.url ){
+  console.log(<span class="hljs-string">'Usage: loadreport.js --url=[url] --task=[task]'</span>);
+  phantom.exit();
+}
+
+<span class="hljs-keyword">if</span>( opt.options.url ){
+  <span class="hljs-keyword">if</span>( ! opt.options.task ) opt.options.task = <span class="hljs-string">'performance'</span>;
+}
+<span class="hljs-keyword">if</span>( !opt.options.task.match(<span class="hljs-regexp">/^(performance|performancecache)$/</span>) ){
+  console.log(<span class="hljs-string">"task must be one of (performance|performancecache)"</span>);
+  phantom.exit(<span class="hljs-string">"task must be one of (performance|performancecache)"</span>);
+}
+<span class="hljs-keyword">if</span>( opt.options.format &amp;&amp; !opt.options.format.match(<span class="hljs-regexp">/^(json|csv|junit)$/</span>) ){
+  console.log(<span class="hljs-string">"format must be one of (json|csv|junit)"</span>);
+  phantom.exit(<span class="hljs-string">"format must be one of (json|csv|junit)"</span>);
+}
+<span class="hljs-keyword">if</span>( opt.options.config ){
+  <span class="hljs-keyword">if</span>( ! fs.isFile(opt.options.config) ) <span class="hljs-keyword">throw</span> <span class="hljs-string">"config file does not exists\n"</span>+opt.options.config;
+}
+<span class="hljs-keyword">if</span>( !opt.options.output ){
+  opt.options.output = <span class="hljs-string">''</span>;
+}
+
 
 <span class="hljs-keyword">var</span> loadreport = {
 
     run: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span>
-        <span class="hljs-keyword">var</span> cliConfig = {};
+        <span class="hljs-keyword">var</span> cliConfig = {
+          url:opt.options.url,
+          wait:opt.options.wait,
+          cacheWait:opt.options.cachewait,
+          output:opt.options.output,
+          task:opt.options.task,
+          format:opt.options.format,
+          wipe:opt.options.wipe,
+          verbose:opt.options.verbose,
+          userAgent:opt.options.user_agent
+        };
         loadreport.performancecache = <span class="hljs-keyword">this</span>.clone(loadreport.performance);
-        <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.processArgs(cliConfig, [
-            {
-                name: <span class="hljs-string">'url'</span>,
-                def: <span class="hljs-string">'http://google.com'</span>,
-                req: <span class="hljs-literal">true</span>,
-                desc: <span class="hljs-string">'the URL of the site to load test'</span>
-            }, {
-                name: <span class="hljs-string">'task'</span>,
-                def: <span class="hljs-string">'performance'</span>,
-                req: <span class="hljs-literal">false</span>,
-                desc: <span class="hljs-string">'the task to perform'</span>,
-                oneof: [<span class="hljs-string">'performance'</span>, <span class="hljs-string">'performancecache'</span>, <span class="hljs-string">'filmstrip'</span>]
-            }, {
-                name: <span class="hljs-string">'configFile'</span>,
-                def: <span class="hljs-string">'config.json'</span>,
-                req: <span class="hljs-literal">false</span>,
-                desc: <span class="hljs-string">'a local configuration file of further loadreport settings'</span>
-            }
-        ])) {</pre></div>
-        
-      
-        
-        <p>phantom.exit();</p>
-
-        
-          <div class='highlight'><pre>            <span class="hljs-keyword">return</span>;
-        }
         <span class="hljs-keyword">this</span>.config = <span class="hljs-keyword">this</span>.mergeConfig(cliConfig, cliConfig.configFile);
         <span class="hljs-keyword">var</span> task = <span class="hljs-keyword">this</span>[<span class="hljs-keyword">this</span>.config.task];
         <span class="hljs-keyword">this</span>.load(<span class="hljs-keyword">this</span>.config, task, <span class="hljs-keyword">this</span>);
@@ -338,16 +388,16 @@ to finish loading</p>
         
           <div class='highlight'><pre>            console.log(<span class="hljs-string">'Elapsed load time: '</span> + <span class="hljs-keyword">this</span>.pad(elapsed, <span class="hljs-number">6</span>) + <span class="hljs-string">'ms'</span>);
 
-            <span class="hljs-keyword">if</span>(phantom.args.indexOf(<span class="hljs-string">'csv'</span>) &gt;= <span class="hljs-number">0</span>){
-                <span class="hljs-keyword">this</span>.printToFile(config,report,<span class="hljs-string">'loadreport'</span>,<span class="hljs-string">'csv'</span>,phantom.args.indexOf(<span class="hljs-string">'wipe'</span>) &gt;= <span class="hljs-number">0</span>);
+            <span class="hljs-keyword">if</span>(config.format == <span class="hljs-string">'csv'</span>){
+                <span class="hljs-keyword">this</span>.printToFile(config,report,<span class="hljs-string">'loadreport'</span>,<span class="hljs-string">'csv'</span>,config.wipe);
             }
 
-            <span class="hljs-keyword">if</span>(phantom.args.indexOf(<span class="hljs-string">'json'</span>) &gt;= <span class="hljs-number">0</span>){
-                <span class="hljs-keyword">this</span>.printToFile(config,report,<span class="hljs-string">'loadreport'</span>,<span class="hljs-string">'json'</span>,phantom.args.indexOf(<span class="hljs-string">'wipe'</span>) &gt;= <span class="hljs-number">0</span>);
+            <span class="hljs-keyword">if</span>(config.format == <span class="hljs-string">'json'</span>){
+                <span class="hljs-keyword">this</span>.printToFile(config,report,<span class="hljs-string">'loadreport'</span>,<span class="hljs-string">'json'</span>,config.wipe);
             }
 
-            <span class="hljs-keyword">if</span>(phantom.args.indexOf(<span class="hljs-string">'junit'</span>) &gt;= <span class="hljs-number">0</span>){
-                <span class="hljs-keyword">this</span>.printToFile(config,report,<span class="hljs-string">'loadreport'</span>,<span class="hljs-string">'xml'</span>,phantom.args.indexOf(<span class="hljs-string">'wipe'</span>) &gt;= <span class="hljs-number">0</span>);
+            <span class="hljs-keyword">if</span>(config.format == <span class="hljs-string">'junit'</span>){
+                <span class="hljs-keyword">this</span>.printToFile(config,report,<span class="hljs-string">'loadreport'</span>,<span class="hljs-string">'xml'</span>,config.wipe);
             }
 
         }
@@ -530,16 +580,18 @@ to finish loading</p>
     },
 
     mergeConfig: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(config, configFile)</span> {</span>
+        <span class="hljs-keyword">var</span> result = {};
         <span class="hljs-keyword">if</span> (!fs.exists(configFile)) {
             configFile = <span class="hljs-string">"loadreport/config.json"</span>;
         }
         <span class="hljs-keyword">if</span> (!fs.exists(configFile)) {
-            configFile = <span class="hljs-string">"config.json"</span>;
+          configFile = <span class="hljs-string">"config.json"</span>;
         }
-        <span class="hljs-keyword">var</span> result = <span class="hljs-built_in">JSON</span>.parse(fs.read(configFile)),
-            key;
-        <span class="hljs-keyword">for</span> (key <span class="hljs-keyword">in</span> config) {
+        <span class="hljs-keyword">if</span> (fs.exists(configFile)) {
+          result = <span class="hljs-built_in">JSON</span>.parse(fs.read(configFile));
+          <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> key <span class="hljs-keyword">in</span> config) {
             result[key] = config[key];
+          }
         }
         <span class="hljs-keyword">return</span> result;
     },
@@ -709,10 +761,10 @@ mycallback(event);</p>
                 values.push(report[key]);
             }
         }
-        <span class="hljs-keyword">if</span>(phantom.args[<span class="hljs-number">3</span>] &amp;&amp; phantom.args[<span class="hljs-number">3</span>] != <span class="hljs-string">'wipe'</span>){
-            myfile = <span class="hljs-string">'reports/'</span> + filename + <span class="hljs-string">'-'</span> + phantom.args[<span class="hljs-number">3</span>] + <span class="hljs-string">'.'</span> + extension;
+        <span class="hljs-keyword">if</span>(config.file_suffix){
+            myfile = config.output+<span class="hljs-string">'reports/'</span> + filename + <span class="hljs-string">'-'</span> + config.file_suffix + <span class="hljs-string">'.'</span> + extension;
         }<span class="hljs-keyword">else</span>{
-            myfile = <span class="hljs-string">'reports/'</span> + filename + <span class="hljs-string">'.'</span> + extension;
+            myfile = config.output+<span class="hljs-string">'reports/'</span> + filename + <span class="hljs-string">'.'</span> + extension;
         }</pre></div>
         
       

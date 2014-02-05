@@ -56,6 +56,20 @@
                   </a>
                 </li>
               
+                
+                <li>
+                  <a class="source" href="build.html">
+                    build.js
+                  </a>
+                </li>
+              
+                
+                <li>
+                  <a class="source" href="tests.html">
+                    tests.js
+                  </a>
+                </li>
+              
             </ol>
           </div>
         
@@ -68,15 +82,45 @@
           <div class='highlight'><pre><span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>)
     , page = <span class="hljs-built_in">require</span>(<span class="hljs-string">'webpage'</span>).create()
     , t
-    , address=phantom.args[<span class="hljs-number">0</span>]
+    , address=<span class="hljs-string">''</span>
     , requests={}
     , responses={}
     , pageInfo={url:address, assets:[]};
 
-<span class="hljs-keyword">if</span> (phantom.args.length === <span class="hljs-number">0</span>) {
-    console.log(<span class="hljs-string">'Usage: speedreport.js &lt;URL&gt;'</span>);
+
+<span class="hljs-keyword">var</span> process = {
+  argv:<span class="hljs-built_in">require</span>(<span class="hljs-string">'system'</span>).args,
+  argc:<span class="hljs-built_in">require</span>(<span class="hljs-string">'system'</span>).args.length,
+  exit:<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
     phantom.exit();
+  }
 }
+<span class="hljs-keyword">var</span> Getopt = <span class="hljs-built_in">require</span>(<span class="hljs-string">"./node_modules/node-getopt/lib/getopt.js"</span>);
+
+<span class="hljs-keyword">var</span> getopt = <span class="hljs-keyword">new</span> Getopt([
+  [<span class="hljs-string">'u'</span> , <span class="hljs-string">'url=ARG'</span>  , <span class="hljs-string">'the URL of the site to load test'</span>],
+  [<span class="hljs-string">''</span> , <span class="hljs-string">'output[=CONFIG_FILE]'</span>],
+  [<span class="hljs-string">''</span> , <span class="hljs-string">'format[=FILE_FORMAT]'</span>],
+  [<span class="hljs-string">'h'</span> , <span class="hljs-string">'help'</span>],
+  [<span class="hljs-string">'v'</span> , <span class="hljs-string">'verbose'</span>]
+]).bindHelp();
+
+<span class="hljs-keyword">var</span> opt = getopt.parse(<span class="hljs-built_in">require</span>(<span class="hljs-string">'system'</span>).args);
+
+<span class="hljs-keyword">if</span>( !opt.options.url ){
+  console.log(<span class="hljs-string">'Usage: speedreport.js --url=[url]'</span>);
+  phantom.exit();
+}
+<span class="hljs-keyword">if</span>( !opt.options.format || !opt.options.format.match(<span class="hljs-regexp">/^(json|html)/</span>) ){
+  opt.options.format = <span class="hljs-string">'html'</span>;
+}
+<span class="hljs-keyword">if</span>( !opt.options.output ){
+  opt.options.output = <span class="hljs-string">''</span>;
+}
+
+address = opt.options.url;
+
+
 page.onResourceRequested = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(r)</span> {</span>
     <span class="hljs-keyword">if</span>(r)requests[r.id]=r;
 };
@@ -130,9 +174,16 @@ page.open(address, <span class="hljs-function"><span class="hljs-keyword">functi
         , values = []
         , extension = <span class="hljs-string">'html'</span>;
 
-    <span class="hljs-keyword">if</span>(!phantom.args[<span class="hljs-number">1</span>]){
-        fileid = phantom.args[<span class="hljs-number">0</span>].replace(<span class="hljs-string">'http://'</span>,<span class="hljs-string">''</span>).replace(<span class="hljs-string">'https://'</span>,<span class="hljs-string">''</span>).replace(<span class="hljs-regexp">/\//g</span>,<span class="hljs-string">''</span>);
-        fileid = fileid.split(<span class="hljs-string">'?'</span>)[<span class="hljs-number">0</span>];</pre></div>
+  <span class="hljs-keyword">if</span>( opt.options.format == <span class="hljs-string">'html'</span> ){
+    fileid = opt.options.url.replace(<span class="hljs-string">'http://'</span>,<span class="hljs-string">''</span>).replace(<span class="hljs-string">'https://'</span>,<span class="hljs-string">''</span>).replace(<span class="hljs-regexp">/\//g</span>,<span class="hljs-string">''</span>);
+    fileid = fileid.split(<span class="hljs-string">'?'</span>)[<span class="hljs-number">0</span>];
+    myjson = opt.options.output+<span class="hljs-string">'speedreports/'</span> + fileid + <span class="hljs-string">'.js'</span>;
+    myfile = opt.options.output+<span class="hljs-string">'speedreports/'</span> + fileid + <span class="hljs-string">'.'</span> + extension;
+  }<span class="hljs-keyword">else</span>{
+    fileid = opt.options.url.replace(<span class="hljs-string">'http://'</span>,<span class="hljs-string">''</span>).replace(<span class="hljs-string">'https://'</span>,<span class="hljs-string">''</span>).replace(<span class="hljs-regexp">/\//g</span>,<span class="hljs-string">''</span>);
+    myjson = opt.options.output+<span class="hljs-string">''</span>+fileid;
+    myfile = <span class="hljs-literal">null</span>;
+  }</pre></div>
         
       
         
@@ -140,14 +191,8 @@ page.open(address, <span class="hljs-function"><span class="hljs-keyword">functi
 Transforms to localhost_8880/some</p>
 
         
-          <div class='highlight'><pre>        fileid = fileid.replace(<span class="hljs-string">":"</span>,<span class="hljs-string">"_"</span>);
-        myjson = <span class="hljs-string">'speedreports/'</span> + fileid + <span class="hljs-string">'.js'</span>;
-        myfile = <span class="hljs-string">'speedreports/'</span> + fileid + <span class="hljs-string">'.'</span> + extension;
-    }<span class="hljs-keyword">else</span>{
-        fileid = phantom.args[<span class="hljs-number">1</span>];
-        myjson = fileid;
-        myfile = <span class="hljs-literal">null</span>;
-    }
+          <div class='highlight'><pre>  myjson = myjson.replace(<span class="hljs-string">":"</span>,<span class="hljs-string">"_"</span>);
+  <span class="hljs-keyword">if</span>( myfile ) myfile = myfile.replace(<span class="hljs-string">":"</span>,<span class="hljs-string">"_"</span>);
 
     <span class="hljs-keyword">if</span>(myfile!==<span class="hljs-literal">null</span>){
         <span class="hljs-keyword">try</span> {
@@ -160,12 +205,12 @@ Transforms to localhost_8880/some</p>
             }<span class="hljs-keyword">else</span>{
                 html = fs.read(<span class="hljs-string">'speedreport.html'</span>);
             }
-            <span class="hljs-keyword">if</span>(phantom.args[<span class="hljs-number">1</span>]){
+            <span class="hljs-keyword">if</span>(opt.options.format != <span class="hljs-string">'html'</span>){
                 html=html.replace(<span class="hljs-string">'{{REPORT_DATA_URI}}'</span>, <span class="hljs-string">'\/rest\/performance\/js\?uuid\='</span> + myjson);
             }<span class="hljs-keyword">else</span>{
                 html=html.replace(<span class="hljs-string">'{{REPORT_DATA_URI}}'</span>, fileid + <span class="hljs-string">'.js'</span>);
             }
-            html=html.replace(<span class="hljs-string">'{{url}}'</span>, phantom.args[<span class="hljs-number">0</span>]);
+            html=html.replace(<span class="hljs-string">'{{url}}'</span>, opt.options.url);
             f = fs.open(myfile, <span class="hljs-string">"w"</span>);
             f.write(html);
             f.flush();

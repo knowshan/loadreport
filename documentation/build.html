@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>build.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="public/stylesheets/normalize.css" />
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="page">
+
+      <div class="header">
+        
+          <h1>build.js</h1>
+        
+
+        
+          <div class="toc">
+            <h3>Table of Contents</h3>
+            <ol>
+              
+                
+                <li>
+                  <a class="source" href="main.html">
+                    main.js
+                  </a>
+                </li>
+              
+                
+                <li>
+                  <a class="source" href="webserver.html">
+                    webserver.js
+                  </a>
+                </li>
+              
+                
+                <li>
+                  <a class="source" href="loadreport.html">
+                    loadreport.js
+                  </a>
+                </li>
+              
+                
+                <li>
+                  <a class="source" href="schedule-loadreport.html">
+                    schedule-loadreport.js
+                  </a>
+                </li>
+              
+                
+                <li>
+                  <a class="source" href="speedreport.html">
+                    speedreport.js
+                  </a>
+                </li>
+              
+                
+                <li>
+                  <a class="source" href="build.html">
+                    build.js
+                  </a>
+                </li>
+              
+                
+                <li>
+                  <a class="source" href="tests.html">
+                    tests.js
+                  </a>
+                </li>
+              
+            </ol>
+          </div>
+        
+      </div>
+
+      
+        
+        
+        
+          <div class='highlight'><pre><span class="hljs-pi">'use strict'</span>;
+
+module.exports = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(grunt)</span> {</span>
+
+  <span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">"fs"</span>);
+
+  <span class="hljs-keyword">var</span> childProcess = <span class="hljs-built_in">require</span>(<span class="hljs-string">'child_process'</span>);
+  <span class="hljs-keyword">var</span> phantomjs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'phantomjs'</span>);
+  <span class="hljs-keyword">var</span> loadreport = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../lib/main.js'</span>);
+  <span class="hljs-keyword">var</span> ph_libutil = <span class="hljs-built_in">require</span>(<span class="hljs-string">"phantomizer-libutil"</span>);
+  <span class="hljs-keyword">var</span> url_parser = <span class="hljs-built_in">require</span>(<span class="hljs-string">'url'</span>);</pre></div>
+        
+      
+        
+        <h2 id="loadreport-runner">loadreport runner</h2>
+
+        
+      
+        
+        <p>use it for any project</p>
+
+        
+          <div class='highlight'><pre>  grunt.registerMultiTask(<span class="hljs-string">"loadreport"</span>,
+    <span class="hljs-string">"Measure page loading times with loadreport"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span>
+
+      <span class="hljs-keyword">var</span> options = <span class="hljs-keyword">this</span>.options({
+        urls:[],</pre></div>
+        
+      
+        
+        <p>(performance|performancecache|filmstrip|speedreport)</p>
+
+        
+          <div class='highlight'><pre>        action:<span class="hljs-literal">null</span>,</pre></div>
+        
+      
+        
+        <p>only if action=(performance|performancecache) (csv|json|junit|xml)</p>
+
+        
+          <div class='highlight'><pre>        format:<span class="hljs-literal">null</span>,</pre></div>
+        
+      
+        
+        <p>file path to a config.json file</p>
+
+        
+          <div class='highlight'><pre>        config_file:<span class="hljs-literal">null</span>,</pre></div>
+        
+      
+        
+        <p>specify output path</p>
+
+        
+          <div class='highlight'><pre>        output:<span class="hljs-literal">null</span>,</pre></div>
+        
+      
+        
+        <p>produce human friendly output</p>
+
+        
+          <div class='highlight'><pre>        readable:<span class="hljs-literal">false</span>
+      });
+
+      <span class="hljs-keyword">var</span> done = <span class="hljs-keyword">this</span>.async();
+
+      <span class="hljs-keyword">var</span> urls = unique_urls(options.urls);
+      grunt.log.ok(<span class="hljs-string">"Running "</span>+urls);
+
+      <span class="hljs-keyword">var</span> base_args = forge_loadreport_args(options);
+
+      <span class="hljs-keyword">var</span> run_url = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span>{</span>
+        <span class="hljs-keyword">var</span> url = urls.shift();
+        <span class="hljs-keyword">var</span> args = base_args.slice(<span class="hljs-number">0</span>).unshift(<span class="hljs-string">"--url="</span>+url);
+        <span class="hljs-keyword">var</span> loadreport_process = run_phantomjs(args,<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(stderr,stdout)</span>{</span>
+          <span class="hljs-keyword">if</span>( urls.length == <span class="hljs-number">0</span> ){
+            done();
+          }<span class="hljs-keyword">else</span>{
+            run_url();
+          }
+        });
+        loadreport_process.stdout.on(<span class="hljs-string">'data'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(data)</span> {</span>
+          <span class="hljs-keyword">if</span>(options.output==<span class="hljs-string">"-"</span>){
+            grunt.log.write(data.toString());
+          }
+        });
+      };
+      run_url();
+
+    });</pre></div>
+        
+      
+        
+        <h2 id="loadreport-phantomizer">loadreport phantomizer</h2>
+
+        
+      
+        
+        <p>specific to phantomizer projects</p>
+
+        
+          <div class='highlight'><pre>  grunt.registerMultiTask(<span class="hljs-string">"phantomizer-loadreport"</span>,
+    <span class="hljs-string">"Measure page loading times with loadreport"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span>
+
+      <span class="hljs-keyword">var</span> options = <span class="hljs-keyword">this</span>.options({
+        web_server_paths:[],
+        urls:[],
+        host:<span class="hljs-string">'localhost'</span>,
+        port:<span class="hljs-string">''</span>,
+        ssl_port:<span class="hljs-string">''</span>,
+        web_server_log:<span class="hljs-literal">false</span>,
+        inject_assets:<span class="hljs-literal">true</span>,</pre></div>
+        
+      
+        
+        <p>specify output path</p>
+
+        
+          <div class='highlight'><pre>        output:<span class="hljs-literal">null</span>,</pre></div>
+        
+      
+        
+        <p>produce human friendly output</p>
+
+        
+          <div class='highlight'><pre>        readable:<span class="hljs-literal">false</span>,
+
+        meta_dir:<span class="hljs-string">''</span>
+      });
+
+      <span class="hljs-keyword">var</span> web_server_paths = options.web_server_paths;
+      <span class="hljs-keyword">var</span> host = options.host;
+      <span class="hljs-keyword">var</span> port = options.port?options.port:<span class="hljs-string">""</span>;
+      <span class="hljs-keyword">var</span> ssl_port = options.ssl_port?options.ssl_port:<span class="hljs-string">""</span>;
+      <span class="hljs-keyword">var</span> web_server_log = options.web_server_log;
+      <span class="hljs-keyword">var</span> inject_assets = options.inject_assets;
+
+      <span class="hljs-keyword">var</span> meta_dir = options.meta_dir;
+
+
+      <span class="hljs-keyword">var</span> done = <span class="hljs-keyword">this</span>.async();
+
+      <span class="hljs-keyword">var</span> webserver           = ph_libutil.webserver;
+      <span class="hljs-keyword">var</span> router_factory      = ph_libutil.router;
+      <span class="hljs-keyword">var</span> optimizer_factory   = ph_libutil.optimizer;
+      <span class="hljs-keyword">var</span> meta_factory        = ph_libutil.meta;
+
+      <span class="hljs-keyword">var</span> config = grunt.config.get();
+
+      <span class="hljs-keyword">var</span> meta_manager = <span class="hljs-keyword">new</span> meta_factory(process.cwd(), meta_dir);
+      <span class="hljs-keyword">var</span> optimizer = <span class="hljs-keyword">new</span> optimizer_factory(meta_manager, config, grunt);
+      <span class="hljs-keyword">var</span> router = <span class="hljs-keyword">new</span> router_factory(config.routing);
+
+      router.load(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
+
+        <span class="hljs-keyword">if</span>( host+port+ssl_port != <span class="hljs-string">''</span> ){
+          webserver = <span class="hljs-keyword">new</span> webserver(router,optimizer,meta_manager,grunt, web_server_paths);
+          webserver.enable_dashboard(<span class="hljs-literal">false</span>);
+          webserver.enable_build(<span class="hljs-literal">false</span>);
+          webserver.enable_assets_inject(inject_assets);
+
+          webserver.start(port, ssl_port, host);
+        }
+
+        <span class="hljs-keyword">var</span> urls = unique_urls(options.urls);
+        grunt.log.ok(<span class="hljs-string">"Running "</span>+urls);
+
+        <span class="hljs-keyword">var</span> base_args = forge_loadreport_args(options);
+
+        <span class="hljs-keyword">var</span> run_url = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span>{</span>
+          <span class="hljs-keyword">var</span> url = urls.shift();
+          <span class="hljs-keyword">var</span> args = base_args.slice(<span class="hljs-number">0</span>).unshift(<span class="hljs-string">"url="</span>+url);
+          <span class="hljs-keyword">var</span> loadreport_process = run_phantomjs(args,<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(stderr,stdout)</span>{</span>
+            <span class="hljs-keyword">if</span>( urls.length == <span class="hljs-number">0</span> ){
+              done();
+            }<span class="hljs-keyword">else</span>{
+              run_url();
+            }
+          });
+          loadreport_process.stdout.on(<span class="hljs-string">'data'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(data)</span> {</span>
+            <span class="hljs-keyword">if</span>(options.output==<span class="hljs-string">"-"</span>){
+              grunt.log.write(data.toString());
+            }
+          });
+        };
+        run_url();
+
+      });
+
+    });</pre></div>
+        
+      
+        
+        <h2 id="helper-functions">helper functions</h2>
+
+        
+      
+        
+        
+        
+          <div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">unique_urls</span><span class="hljs-params">(urls)</span>{</span>
+    <span class="hljs-keyword">var</span> retour = [];
+    <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> urls ){
+      <span class="hljs-keyword">if</span>( urls[n] &amp;&amp; retour.indexOf(urls[n]) == -<span class="hljs-number">1</span> ){
+        retour.push(urls[n])
+      }
+    }
+    <span class="hljs-keyword">return</span> retour;
+  }</pre></div>
+        
+      
+        
+        <p>tranforms options to —[switch] [value]
+does not manage urls</p>
+
+        
+          <div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">forge_loadreport_args</span><span class="hljs-params">(options)</span>{</span>
+    <span class="hljs-keyword">var</span> args = [];
+
+    <span class="hljs-keyword">if</span>( options.action.match(<span class="hljs-regexp">/(performance|performancecache|filmstrip|speedreport)/</span>) ){
+      args.push( <span class="hljs-string">"--task="</span>+options.action )
+    }<span class="hljs-keyword">else</span>{
+      grunt.fail.fatal(<span class="hljs-string">"Unknown action "</span>+options.action);
+    }
+
+    <span class="hljs-keyword">if</span>( options.format ){
+      <span class="hljs-keyword">if</span>( options.action.match(<span class="hljs-regexp">/(performance|performancecache)/</span>) ){
+        <span class="hljs-keyword">if</span>( options.format.match(<span class="hljs-regexp">/(csv|json|junit|xml)/</span>) ){
+          args.push( <span class="hljs-string">"--format="</span>+options.format )
+        }<span class="hljs-keyword">else</span>{
+          grunt.fail.fatal(<span class="hljs-string">"Unknown action "</span>+options.action);
+        }
+      }<span class="hljs-keyword">else</span>{
+        grunt.log.error(<span class="hljs-string">"Cannot change format for action "</span>+options.action);
+      }
+    }
+
+    <span class="hljs-keyword">if</span>( options.config_file ){
+      <span class="hljs-keyword">if</span>( grunt.file.exists(options.config_file) ){
+        args.push( <span class="hljs-string">"--config="</span>+options.config_file )
+      }<span class="hljs-keyword">else</span>{
+        grunt.log.error(<span class="hljs-string">"config.json file does not exsist "</span>+options.config_file);
+      }
+    }
+
+    <span class="hljs-keyword">if</span>( options.output ){
+      args.push( <span class="hljs-string">"--output="</span>+options.output )
+    }
+    <span class="hljs-keyword">return</span> args;
+  }</pre></div>
+        
+      
+        
+        <p>runs phantomjs and pipes output to grunt</p>
+
+        
+          <div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">run_phantomjs</span><span class="hljs-params">(args,then)</span>{</span>
+
+    args.unshift(loadreport.path);
+
+    <span class="hljs-keyword">var</span> stdout = <span class="hljs-string">""</span>;
+    <span class="hljs-keyword">var</span> stderr = <span class="hljs-string">""</span>;
+
+    grunt.log.write(phantomjs.path+<span class="hljs-string">" "</span>+args.join(<span class="hljs-string">" "</span>));
+    <span class="hljs-keyword">var</span> pantomjs_process = <span class="hljs-built_in">require</span>(<span class="hljs-string">'child_process'</span>).spawn(phantomjs.path, args);</pre></div>
+        
+      
+        
+        <p>with live output piping</p>
+
+        
+          <div class='highlight'><pre>    pantomjs_process.stdout.on(<span class="hljs-string">'data'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(data)</span> {</span>
+      stdout+=data.toString();
+      grunt.verbose.write(data.toString());
+    });
+    pantomjs_process.stderr.on(<span class="hljs-string">'data'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(data)</span> {</span>
+      stderr+=data.toString();
+      grunt.log.error(stderr);
+    });</pre></div>
+        
+      
+        
+        <p>and callback on exit process</p>
+
+        
+          <div class='highlight'><pre>    pantomjs_process.on(<span class="hljs-string">'exit'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(code)</span> {</span>
+      <span class="hljs-keyword">if</span>(then) then(stderr,stdout);
+    });
+
+    <span class="hljs-keyword">return</span> pantomjs_process;
+  }
+};</pre></div>
+        
+      
+      <div class="fleur">h</div>
+    </div>
+  </div>
+</body>
+</html>
