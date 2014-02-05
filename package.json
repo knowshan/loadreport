@@ -23,7 +23,8 @@
   "dependencies": {
     "express": "~3.4.8",
     "optimist": "0.4.x",
-    "phantomjs": "1.9.x"
+    "phantomjs": "1.9.x",
+    "node-getopt": "~0.2.3"
   },
   "devDependencies": {
     "docco": "jashkenas/docco",

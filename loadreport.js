@@ -1,33 +1,74 @@
+
+
 var fs = require('fs');
 var WebPage = require('webpage');
+
+
+var process = {
+  argv:require('system').args,
+  argc:require('system').args.length,
+  exit:function(){
+    phantom.exit();
+  }
+}
+var Getopt = require("./node_modules/node-getopt/lib/getopt.js");
+
+var getopt = new Getopt([
+  ['u' , 'url=ARG'  , 'the URL of the site to load test'],
+  ['t' , 'task=ARG'  , 'the task to perform'],
+  ['' , 'config[=CONFIG_FILE]'],
+  ['' , 'format[=OUTPUT_FORMAT]'],
+  ['' , 'output[=CONFIG_FILE]'],
+  ['' , 'wait[=WAIT]'],
+  ['' , 'cachewait[=CACHE_WAIT]'],
+  ['' , 'user_agent[=USER_AGENT]'],
+  ['' , 'file_suffix[=FILE_SUFFIX]'],
+  ['w' , 'wipe'],
+  ['h' , 'help'],
+  ['v' , 'verbose']
+]).bindHelp();
+
+var opt = getopt.parse(require('system').args);
+
+if( !opt.options.url ){
+  console.log('Usage: loadreport.js --url=[url] --task=[task]');
+  phantom.exit();
+}
+
+if( opt.options.url ){
+  if( ! opt.options.task ) opt.options.task = 'performance';
+}
+if( !opt.options.task.match(/^(performance|performancecache)$/) ){
+  console.log("task must be one of (performance|performancecache)");
+  phantom.exit("task must be one of (performance|performancecache)");
+}
+if( opt.options.format && !opt.options.format.match(/^(json|csv|junit)$/) ){
+  console.log("format must be one of (json|csv|junit)");
+  phantom.exit("format must be one of (json|csv|junit)");
+}
+if( opt.options.config ){
+  if( ! fs.isFile(opt.options.config) ) throw "config file does not exists\n"+opt.options.config;
+}
+if( !opt.options.output ){
+  opt.options.output = '';
+}
+
 
 var loadreport = {
 
     run: function () {
-        var cliConfig = {};
+        var cliConfig = {
+          url:opt.options.url,
+          wait:opt.options.wait,
+          cacheWait:opt.options.cachewait,
+          output:opt.options.output,
+          task:opt.options.task,
+          format:opt.options.format,
+          wipe:opt.options.wipe,
+          verbose:opt.options.verbose,
+          userAgent:opt.options.user_agent
+        };
         loadreport.performancecache = this.clone(loadreport.performance);
-        if (!this.processArgs(cliConfig, [
-            {
-                name: 'url',
-                def: 'http://google.com',
-                req: true,
-                desc: 'the URL of the site to load test'
-            }, {
-                name: 'task',
-                def: 'performance',
-                req: false,
-                desc: 'the task to perform',
-                oneof: ['performance', 'performancecache', 'filmstrip']
-            }, {
-                name: 'configFile',
-                def: 'config.json',
-                req: false,
-                desc: 'a local configuration file of further loadreport settings'
-            }
-        ])) {
-            //phantom.exit();
-            return;
-        }
         this.config = this.mergeConfig(cliConfig, cliConfig.configFile);
         var task = this[this.config.task];
         this.load(this.config, task, this);
@@ -206,16 +247,16 @@ var loadreport = {
             //console.log(JSON.stringify(report));
             console.log('Elapsed load time: ' + this.pad(elapsed, 6) + 'ms');
 
-            if(phantom.args.indexOf('csv') >= 0){
-                this.printToFile(config,report,'loadreport','csv',phantom.args.indexOf('wipe') >= 0);
+            if(config.format == 'csv'){
+                this.printToFile(config,report,'loadreport','csv',config.wipe);
             }
 
-            if(phantom.args.indexOf('json') >= 0){
-                this.printToFile(config,report,'loadreport','json',phantom.args.indexOf('wipe') >= 0);
+            if(config.format == 'json'){
+                this.printToFile(config,report,'loadreport','json',config.wipe);
             }
 
-            if(phantom.args.indexOf('junit') >= 0){
-                this.printToFile(config,report,'loadreport','xml',phantom.args.indexOf('wipe') >= 0);
+            if(config.format == 'junit'){
+                this.printToFile(config,report,'loadreport','xml',config.wipe);
             }
 
         }
@@ -383,16 +424,18 @@ var loadreport = {
     },
 
     mergeConfig: function (config, configFile) {
+        var result = {};
         if (!fs.exists(configFile)) {
             configFile = "loadreport/config.json";
         }
         if (!fs.exists(configFile)) {
-            configFile = "config.json";
+          configFile = "config.json";
         }
-        var result = JSON.parse(fs.read(configFile)),
-            key;
-        for (key in config) {
+        if (fs.exists(configFile)) {
+          result = JSON.parse(fs.read(configFile));
+          for (var key in config) {
             result[key] = config[key];
+          }
         }
         return result;
     },
@@ -525,10 +568,10 @@ var loadreport = {
                 values.push(report[key]);
             }
         }
-        if(phantom.args[3] && phantom.args[3] != 'wipe'){
-            myfile = 'reports/' + filename + '-' + phantom.args[3] + '.' + extension;
+        if(config.file_suffix){
+            myfile = config.output+'reports/' + filename + '-' + config.file_suffix + '.' + extension;
         }else{
-            myfile = 'reports/' + filename + '.' + extension;
+            myfile = config.output+'reports/' + filename + '.' + extension;
         }
         // Given localhost:8880/some
         // Transforms to localhost_8880/some

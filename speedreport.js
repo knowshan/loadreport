@@ -1,15 +1,45 @@
 var fs = require('fs')
     , page = require('webpage').create()
     , t
-    , address=phantom.args[0]
+    , address=''
     , requests={}
     , responses={}
     , pageInfo={url:address, assets:[]};
 
-if (phantom.args.length === 0) {
-    console.log('Usage: speedreport.js <URL>');
+
+var process = {
+  argv:require('system').args,
+  argc:require('system').args.length,
+  exit:function(){
     phantom.exit();
+  }
 }
+var Getopt = require("./node_modules/node-getopt/lib/getopt.js");
+
+var getopt = new Getopt([
+  ['u' , 'url=ARG'  , 'the URL of the site to load test'],
+  ['' , 'output[=CONFIG_FILE]'],
+  ['' , 'format[=FILE_FORMAT]'],
+  ['h' , 'help'],
+  ['v' , 'verbose']
+]).bindHelp();
+
+var opt = getopt.parse(require('system').args);
+
+if( !opt.options.url ){
+  console.log('Usage: speedreport.js --url=[url]');
+  phantom.exit();
+}
+if( !opt.options.format || !opt.options.format.match(/^(json|html)/) ){
+  opt.options.format = 'html';
+}
+if( !opt.options.output ){
+  opt.options.output = '';
+}
+
+address = opt.options.url;
+
+
 page.onResourceRequested = function (r) {
     if(r)requests[r.id]=r;
 };
@@ -63,19 +93,21 @@ function printToFile(data) {
         , values = []
         , extension = 'html';
 
-    if(!phantom.args[1]){
-        fileid = phantom.args[0].replace('http://','').replace('https://','').replace(/\//g,'');
-        fileid = fileid.split('?')[0];
-        // Given localhost:8880/some
-        // Transforms to localhost_8880/some
-        fileid = fileid.replace(":","_");
-        myjson = 'speedreports/' + fileid + '.js';
-        myfile = 'speedreports/' + fileid + '.' + extension;
-    }else{
-        fileid = phantom.args[1];
-        myjson = fileid;
-        myfile = null;
-    }
+  if( opt.options.format == 'html' ){
+    fileid = opt.options.url.replace('http://','').replace('https://','').replace(/\//g,'');
+    fileid = fileid.split('?')[0];
+    myjson = opt.options.output+'speedreports/' + fileid + '.js';
+    myfile = opt.options.output+'speedreports/' + fileid + '.' + extension;
+  }else{
+    fileid = opt.options.url.replace('http://','').replace('https://','').replace(/\//g,'');
+    myjson = opt.options.output+''+fileid;
+    myfile = null;
+  }
+
+  // Given localhost:8880/some
+  // Transforms to localhost_8880/some
+  myjson = myjson.replace(":","_");
+  if( myfile ) myfile = myfile.replace(":","_");
 
     if(myfile!==null){
         try {
@@ -88,12 +120,12 @@ function printToFile(data) {
             }else{
                 html = fs.read('speedreport.html');
             }
-            if(phantom.args[1]){
+            if(opt.options.format != 'html'){
                 html=html.replace('{{REPORT_DATA_URI}}', '\/rest\/performance\/js\?uuid\=' + myjson);
             }else{
                 html=html.replace('{{REPORT_DATA_URI}}', fileid + '.js');
             }
-            html=html.replace('{{url}}', phantom.args[0]);
+            html=html.replace('{{url}}', opt.options.url);
             f = fs.open(myfile, "w");
             f.write(html);
             f.flush();
