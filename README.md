@@ -79,6 +79,10 @@ http://maboiteaspam.github.io/loadreport/documentation/speedreport.html
 
 http://maboiteaspam.github.io/loadreport/documentation/loadreport.html
 
+http://maboiteaspam.github.io/loadreport/documentation/build.html
+
+http://maboiteaspam.github.io/loadreport/documentation/test.html
+
 http://maboiteaspam.github.io/loadreport/documentation/main.html
 
 http://maboiteaspam.github.io/loadreport/documentation/webserver.html
