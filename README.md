@@ -13,8 +13,6 @@ You can take it for a spin in [this live demo](http://loadreport.wesleyhales.com
 * ``` phantomjs loadreport.js --url=http://cnn.com --task=filmstrip ```
 ![loadreport filmstrip](https://raw.github.com/wesleyhales/loadreport/master/readme/cnn-filmstrip.png)
 
-* ``` phantomjs loadreport.js --help```
-
 ```
 Usage:  phantomjs loadreport.js --help
 
@@ -40,8 +38,6 @@ Usage:  phantomjs loadreport.js --help
 * ``` phantomjs speedreport.js --url=http://www.cnn.com --output=output/```
 
 * ``` phantomjs speedreport.js --url=http://www.cnn.com --format=json```
-
-* ``` phantomjs speedreport.js --help```
 
 ```
 Usage:  phantomjs speedreport.js --help
