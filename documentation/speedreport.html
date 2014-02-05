@@ -132,7 +132,15 @@ page.open(address, <span class="hljs-function"><span class="hljs-keyword">functi
 
     <span class="hljs-keyword">if</span>(!phantom.args[<span class="hljs-number">1</span>]){
         fileid = phantom.args[<span class="hljs-number">0</span>].replace(<span class="hljs-string">'http://'</span>,<span class="hljs-string">''</span>).replace(<span class="hljs-string">'https://'</span>,<span class="hljs-string">''</span>).replace(<span class="hljs-regexp">/\//g</span>,<span class="hljs-string">''</span>);
-        fileid = fileid.split(<span class="hljs-string">'?'</span>)[<span class="hljs-number">0</span>];
+        fileid = fileid.split(<span class="hljs-string">'?'</span>)[<span class="hljs-number">0</span>];</pre></div>
+        
+      
+        
+        <p>Given localhost:8880/some
+Transforms to localhost_8880/some</p>
+
+        
+          <div class='highlight'><pre>        fileid = fileid.replace(<span class="hljs-string">":"</span>,<span class="hljs-string">"_"</span>);
         myjson = <span class="hljs-string">'speedreports/'</span> + fileid + <span class="hljs-string">'.js'</span>;
         myfile = <span class="hljs-string">'speedreports/'</span> + fileid + <span class="hljs-string">'.'</span> + extension;
     }<span class="hljs-keyword">else</span>{
