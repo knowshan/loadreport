@@ -9,6 +9,8 @@ module.exports = function(grunt) {
           'schedule-loadreport.js',
           'speedreport.js',
           'loadreport.js',
+          'test/tests.js',
+          'tasks/build.js',
           'lib/main.js',
           'lib/webserver.js'
         ],
