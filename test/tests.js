@@ -173,6 +173,9 @@ var phantomjs = require('phantomjs');
 function run_phantomjs(args,cb){
   var stdout = "";
   var stderr = "";
+
+  grunt.verbose.write(phantomjs.path+" "+args.join(" "))
+
   var phantomjs_process = require('child_process').spawn(phantomjs.path, args);
   phantomjs_process.stdout.on('data', function (data) {
     log.info('stdout', '', data.toString());
