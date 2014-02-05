@@ -6,11 +6,10 @@ var http = require('http');
 var express = require('express');
 var log = require('npmlog');
 
-log.level = "info";
-log.level = "silent";
-
-// to really mute grunt
-grunt.log.muted = !false;
+var url_congestion = {
+  '/index.js':[1500,3000],
+  '/data.js':[700,800]
+};
 
 var www_dir = __dirname + '/www';
 var app_server;
@@ -20,9 +19,35 @@ describe('loadreport tests', function () {
   this.timeout(4000);
 
   before(function(){
+
+    log.level = "info";
+    log.level = "silent";
+
+    // to really mute grunt
+    grunt.log.muted = !false;
+
     var app = express();
     if( log.level !== "silent" ) app.use(express.logger());
-    app.use(express.static(www_dir));
+    // catch the requests
+    app.use(function(req,res,next){
+      var f = www_dir+req.path;
+      // if the file exists in www dir
+      if( grunt.file.exists(f) ){
+        var timeout = 1;
+        // and is applying congestion
+        if( url_congestion[req.path] ){
+          // generate a timeout given the configuration
+          timeout = random_num(url_congestion[req.path][0],url_congestion[req.path][1]);
+        }
+        // render the content, with delay or not
+        setTimeout(function(){
+          res.send(grunt.file.read(f))
+        },timeout)
+        // or pass to 404 handler
+      }else{
+        next();
+      }
+    });
     app_server = http.createServer(app).listen(8080);
 
     grunt.file.delete("reports/");
@@ -35,9 +60,9 @@ describe('loadreport tests', function () {
   });
 
   afterEach(function(){
-    grunt.file.delete("reports/");
+    //grunt.file.delete("reports/");
     grunt.file.delete("filmstrip/");
-    grunt.file.delete("speedreports/");
+    //grunt.file.delete("speedreports/");
   });
 
   it('should expose the wrappers path correctly', function() {
@@ -94,7 +119,8 @@ describe('loadreport tests', function () {
       var report = JSON.parse(c);
       c.length.should.be.greaterThan(0);
       report.should.not.be.null;
-      report.should.have.properties(
+      report.length.should.be.greaterThan(0);
+      report[0].should.have.properties(
         'url',
         'domReadystateLoading',
         'domReadystateInteractive',
@@ -169,6 +195,11 @@ describe('loadreport tests', function () {
 
 });
 
+// helper functions
+// ------------
+function random_num(min,max){
+  return ( min+Math.floor(Math.random() * (max-min)) );
+}
 var phantomjs = require('phantomjs');
 function run_phantomjs(args,cb){
   var stdout = "";
