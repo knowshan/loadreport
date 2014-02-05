@@ -66,6 +66,9 @@ function printToFile(data) {
     if(!phantom.args[1]){
         fileid = phantom.args[0].replace('http://','').replace('https://','').replace(/\//g,'');
         fileid = fileid.split('?')[0];
+        // Given localhost:8880/some
+        // Transforms to localhost_8880/some
+        fileid = fileid.replace(":","_");
         myjson = 'speedreports/' + fileid + '.js';
         myfile = 'speedreports/' + fileid + '.' + extension;
     }else{
