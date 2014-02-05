@@ -20,14 +20,15 @@ describe('loadreport tests', function () {
 
   before(function(){
 
-    log.level = "info";
     log.level = "silent";
+    log.level = "info";
+    log.level = "log";
 
     // to really mute grunt
     grunt.log.muted = !false;
 
     var app = express();
-    if( log.level !== "silent" ) app.use(express.logger());
+    if( log.level == "info" ) app.use(express.logger());
     // catch the requests
     app.use(function(req,res,next){
       var f = www_dir+req.path;
@@ -50,9 +51,7 @@ describe('loadreport tests', function () {
     });
     app_server = http.createServer(app).listen(8080);
 
-    grunt.file.delete("reports/");
-    grunt.file.delete("filmstrip/");
-    grunt.file.delete("speedreports/");
+    grunt.file.delete("output/");
   });
 
   after(function(done){
@@ -60,10 +59,11 @@ describe('loadreport tests', function () {
   });
 
   afterEach(function(){
-    //grunt.file.delete("reports/");
-    grunt.file.delete("filmstrip/");
-    //grunt.file.delete("speedreports/");
+    grunt.file.delete("output/");
   });
+
+
+  var url = "http://localhost:8080/index.html";
 
   it('should expose the wrappers path correctly', function() {
     var loadreport = require("../lib/main.js");
@@ -72,10 +72,9 @@ describe('loadreport tests', function () {
       grunt.file.read(loadreport[n]).length.should.be.greaterThan(0,n+' is an empty file : '+loadreport[n]);
     }
   });
-  var url = "http://localhost:8080/index.html";
   it('should display the output', function(done) {
     var loadreport = require("../lib/main.js");
-    run_phantomjs([loadreport.load_reports, url, "performancecache"],function(code,stdout,stderr){
+    run_phantomjs([loadreport.load_reports, "--url="+url, "--task=performancecache", "--output=output/"],function(code,stdout,stderr){
       stdout.should.match(/(DOMContentLoaded)/);
       stdout.should.match(/(onload)/);
       stdout.should.match(/(Elapsed load time:\s+[0-9]+ms)/);
@@ -83,10 +82,60 @@ describe('loadreport tests', function () {
     });
   });
 
+  it('should produce a json file, performance', function(done) {
+    var loadreport = require("../lib/main.js");
+    var outfile = "output/reports/loadreport.json";
+    run_phantomjs([loadreport.load_reports, "--url="+url, "--task=performance", "--format=json", "--output=output/"],function(code,stdout,stderr){
+      var c = grunt.file.read(outfile);
+      var report = JSON.parse(c);
+      c.length.should.be.greaterThan(0);
+      report.should.not.be.null;
+      if( report.length ){
+        report.length.should.be.greaterThan(0);
+        report[0].should.have.properties(
+          'url',
+          'domReadystateLoading',
+          'domReadystateInteractive',
+          'windowOnload',
+          'elapsedLoadTime',
+          'numberOfResources',
+          'totalResourcesTime',
+          'slowestResource',
+          'largestResource',
+          'totalResourcesSize',
+          'nonReportingResources',
+          'timeStamp',
+          'date',
+          'time',
+          'errors'
+        );
+      }else{
+        report.should.have.properties(
+          'url',
+          'domReadystateLoading',
+          'domReadystateInteractive',
+          'windowOnload',
+          'elapsedLoadTime',
+          'numberOfResources',
+          'totalResourcesTime',
+          'slowestResource',
+          'largestResource',
+          'totalResourcesSize',
+          'nonReportingResources',
+          'timeStamp',
+          'date',
+          'time',
+          'errors'
+        );
+      }
+      done();
+    });
+  });
+
   it('should produce a json file, performancecache', function(done) {
     var loadreport = require("../lib/main.js");
-    var outfile = "reports/loadreport.json";
-    run_phantomjs([loadreport.load_reports, url, "performancecache", "json"],function(code,stdout,stderr){
+    var outfile = "output/reports/loadreport.json";
+    run_phantomjs([loadreport.load_reports, "--url="+url, "--task=performancecache", "--format=json", "--output=output/"],function(code,stdout,stderr){
       var c = grunt.file.read(outfile);
       var report = JSON.parse(c);
       c.length.should.be.greaterThan(0);
@@ -111,40 +160,11 @@ describe('loadreport tests', function () {
       done();
     });
   });
-  it('should produce a json file, performance', function(done) {
-    var loadreport = require("../lib/main.js");
-    var outfile = "reports/loadreport.json";
-    run_phantomjs([loadreport.load_reports, url, "performance", "json"],function(code,stdout,stderr){
-      var c = grunt.file.read(outfile);
-      var report = JSON.parse(c);
-      c.length.should.be.greaterThan(0);
-      report.should.not.be.null;
-      report.length.should.be.greaterThan(0);
-      report[0].should.have.properties(
-        'url',
-        'domReadystateLoading',
-        'domReadystateInteractive',
-        'windowOnload',
-        'elapsedLoadTime',
-        'numberOfResources',
-        'totalResourcesTime',
-        'slowestResource',
-        'largestResource',
-        'totalResourcesSize',
-        'nonReportingResources',
-        'timeStamp',
-        'date',
-        'time',
-        'errors'
-      );
-      done();
-    });
-  });
 
   it('should produce a csv file, performancecache', function(done) {
     var loadreport = require("../lib/main.js");
-    var outfile = "reports/loadreport.csv";
-    run_phantomjs([loadreport.load_reports, url, "performancecache", "csv"],function(code,stdout,stderr){
+    var outfile = "output/reports/loadreport.csv";
+    run_phantomjs([loadreport.load_reports, "--url="+url, "--task=performancecache", "--format=csv", "--output=output/"],function(code,stdout,stderr){
       var c = grunt.file.read(outfile);
       c.length.should.be.greaterThan(0);
       done();
@@ -153,8 +173,8 @@ describe('loadreport tests', function () {
 
   it('should produce a csv file, performance', function(done) {
     var loadreport = require("../lib/main.js");
-    var outfile = "reports/loadreport.csv";
-    run_phantomjs([loadreport.load_reports, url, "performance", "csv"],function(code,stdout,stderr){
+    var outfile = "output/reports/loadreport.csv";
+    run_phantomjs([loadreport.load_reports, "--url="+ url, "--task=performance", "--format=csv", "--output=output/"],function(code,stdout,stderr){
       var c = grunt.file.read(outfile);
       c.length.should.be.greaterThan(0);
       done();
@@ -163,8 +183,8 @@ describe('loadreport tests', function () {
 
   it('should produce a junit file, performancecache', function(done) {
     var loadreport = require("../lib/main.js");
-    var outfile = "reports/loadreport.xml";
-    run_phantomjs([loadreport.load_reports, url, "performancecache", "junit"],function(code,stdout,stderr){
+    var outfile = "output/reports/loadreport.xml";
+    run_phantomjs([loadreport.load_reports, "--url="+url, "--task=performancecache", "--format=junit", "--output=output/"],function(code,stdout,stderr){
       var c = grunt.file.read(outfile);
       c.length.should.be.greaterThan(0);
       done();
@@ -173,8 +193,8 @@ describe('loadreport tests', function () {
 
   it('should produce a junit file, performance', function(done) {
     var loadreport = require("../lib/main.js");
-    var outfile = "reports/loadreport.xml";
-    run_phantomjs([loadreport.load_reports, url, "performance", "junit"],function(code,stdout,stderr){
+    var outfile = "output/reports/loadreport.xml";
+    run_phantomjs([loadreport.load_reports, "--url="+url, "--task=performance", "--format=junit", "--output=output/"],function(code,stdout,stderr){
       var c = grunt.file.read(outfile);
       c.length.should.be.greaterThan(0);
       done();
@@ -184,8 +204,8 @@ describe('loadreport tests', function () {
 
   it('should produce a speed report test', function(done) {
     var loadreport = require("../lib/main.js");
-    var outfile = "speedreports/localhost_8080index.html.html";
-    run_phantomjs([loadreport.speedreports, url],function(code,stdout,stderr){
+    var outfile = "output/speedreports/localhost_8080index.html.html";
+    run_phantomjs([loadreport.speedreports, "--url="+url, "--output=output/"],function(code,stdout,stderr){
       var c = grunt.file.read(outfile);
       c.length.should.be.greaterThan(0);
       done();
@@ -205,7 +225,7 @@ function run_phantomjs(args,cb){
   var stdout = "";
   var stderr = "";
 
-  grunt.verbose.write(phantomjs.path+" "+args.join(" "))
+  log.info('stdout', '', phantomjs.path+" "+args.join(" "))
 
   var phantomjs_process = require('child_process').spawn(phantomjs.path, args);
   phantomjs_process.stdout.on('data', function (data) {
