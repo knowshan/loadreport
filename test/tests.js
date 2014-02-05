@@ -6,26 +6,35 @@ var http = require('http');
 var express = require('express');
 var log = require('npmlog');
 
-log.level = "silent";
 log.level = "info";
+log.level = "silent";
 
 var www_dir = __dirname + '/www';
 var app_server;
 
 describe('loadreport tests', function () {
 
+  this.timeout(4000);
+
   before(function(){
     var app = express();
     if( log.level !== "silent" ) app.use(express.logger());
     app.use(express.static(www_dir));
     app_server = http.createServer(app).listen(8080);
-  });
 
-  after(function(done){
     grunt.file.delete("reports/");
     grunt.file.delete("filmstrip/");
     grunt.file.delete("speedreports/");
+  });
+
+  after(function(done){
     app_server.close(done);
+  });
+
+  afterEach(function(){
+    grunt.file.delete("reports/");
+    grunt.file.delete("filmstrip/");
+    //grunt.file.delete("speedreports/");
   });
 
   it('should expose the wrappers path correctly', function() {
@@ -49,11 +58,9 @@ describe('loadreport tests', function () {
   it('should produce a json file, performancecache', function(done) {
     var loadreport = require("../lib/main.js");
     var outfile = "reports/loadreport.json";
-    grunt.file.delete(outfile);
     run_phantomjs([loadreport.load_reports, url, "performancecache", "json"],function(code,stdout,stderr){
       var c = grunt.file.read(outfile);
       var report = JSON.parse(c);
-      grunt.file.delete(outfile);
       c.length.should.be.greaterThan(0);
       report.should.not.be.null;
       report.should.have.properties(
@@ -79,11 +86,9 @@ describe('loadreport tests', function () {
   it('should produce a json file, performance', function(done) {
     var loadreport = require("../lib/main.js");
     var outfile = "reports/loadreport.json";
-    grunt.file.delete(outfile);
     run_phantomjs([loadreport.load_reports, url, "performance", "json"],function(code,stdout,stderr){
       var c = grunt.file.read(outfile);
       var report = JSON.parse(c);
-      grunt.file.delete(outfile);
       c.length.should.be.greaterThan(0);
       report.should.not.be.null;
       report.should.have.properties(
@@ -110,10 +115,8 @@ describe('loadreport tests', function () {
   it('should produce a csv file, performancecache', function(done) {
     var loadreport = require("../lib/main.js");
     var outfile = "reports/loadreport.csv";
-    grunt.file.delete(outfile);
     run_phantomjs([loadreport.load_reports, url, "performancecache", "csv"],function(code,stdout,stderr){
       var c = grunt.file.read(outfile);
-      grunt.file.delete(outfile);
       c.length.should.be.greaterThan(0);
       done();
     });
@@ -122,10 +125,8 @@ describe('loadreport tests', function () {
   it('should produce a csv file, performance', function(done) {
     var loadreport = require("../lib/main.js");
     var outfile = "reports/loadreport.csv";
-    grunt.file.delete(outfile);
     run_phantomjs([loadreport.load_reports, url, "performance", "csv"],function(code,stdout,stderr){
       var c = grunt.file.read(outfile);
-      grunt.file.delete(outfile);
       c.length.should.be.greaterThan(0);
       done();
     });
@@ -134,10 +135,8 @@ describe('loadreport tests', function () {
   it('should produce a junit file, performancecache', function(done) {
     var loadreport = require("../lib/main.js");
     var outfile = "reports/loadreport.xml";
-    grunt.file.delete(outfile);
     run_phantomjs([loadreport.load_reports, url, "performancecache", "junit"],function(code,stdout,stderr){
       var c = grunt.file.read(outfile);
-      grunt.file.delete(outfile);
       c.length.should.be.greaterThan(0);
       done();
     });
@@ -146,10 +145,8 @@ describe('loadreport tests', function () {
   it('should produce a junit file, performance', function(done) {
     var loadreport = require("../lib/main.js");
     var outfile = "reports/loadreport.xml";
-    grunt.file.delete(outfile);
     run_phantomjs([loadreport.load_reports, url, "performance", "junit"],function(code,stdout,stderr){
       var c = grunt.file.read(outfile);
-      grunt.file.delete(outfile);
       c.length.should.be.greaterThan(0);
       done();
     });
@@ -158,11 +155,9 @@ describe('loadreport tests', function () {
 
   it('should produce a speed report test', function(done) {
     var loadreport = require("../lib/main.js");
-    var outfile = "speedreports/localhost:8080index.html.html";
-    grunt.file.delete(outfile);
+    var outfile = "speedreports/localhost_8080index.html.html";
     run_phantomjs([loadreport.speedreports, url],function(code,stdout,stderr){
       var c = grunt.file.read(outfile);
-      grunt.file.delete(outfile);
       c.length.should.be.greaterThan(0);
       done();
     });
