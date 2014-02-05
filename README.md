@@ -67,7 +67,7 @@ Usage:  phantomjs speedreport.js --help
 
 Generate a report
 
-* ``` phantomjs speedreport.js --url=http://www.cnn.com```
+* ``` speedreport --url=http://www.cnn.com```
 
 Run the webserver
 
