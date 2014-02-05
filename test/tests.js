@@ -9,6 +9,9 @@ var log = require('npmlog');
 log.level = "info";
 log.level = "silent";
 
+// to really mute grunt
+grunt.log.muted = !false;
+
 var www_dir = __dirname + '/www';
 var app_server;
 
@@ -34,7 +37,7 @@ describe('loadreport tests', function () {
   afterEach(function(){
     grunt.file.delete("reports/");
     grunt.file.delete("filmstrip/");
-    //grunt.file.delete("speedreports/");
+    grunt.file.delete("speedreports/");
   });
 
   it('should expose the wrappers path correctly', function() {
