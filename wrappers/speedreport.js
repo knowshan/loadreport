@@ -14,12 +14,13 @@ var process = {
     phantom.exit();
   }
 }
-var Getopt = require("./node_modules/node-getopt/lib/getopt.js");
+var Getopt = require(fs.workingDirectory+"/node_modules/node-getopt/lib/getopt.js");
 
 var getopt = new Getopt([
   ['u' , 'url=ARG'  , 'the URL of the site to load test'],
   ['' , 'output[=CONFIG_FILE]'],
   ['' , 'format[=FILE_FORMAT]'],
+  ['' , 'template[=TEMPLATE]'],
   ['h' , 'help'],
   ['v' , 'verbose']
 ]).bindHelp();
@@ -35,6 +36,16 @@ if( !opt.options.format || !opt.options.format.match(/^(json|html)/) ){
 }
 if( !opt.options.output ){
   opt.options.output = '';
+}
+if( !opt.options.template && opt.options.format == "html" ){
+  if(fs.exists('speedreport.html')){
+    opt.options.template = 'speedreport.html';
+  }else if(fs.exists('loadreport/speedreport.html')){
+    opt.options.template = 'loadreport/speedreport.html';
+  }else{
+    console.log('Can t find template file');
+    phantom.exit();
+  }
 }
 
 address = opt.options.url;
@@ -112,14 +123,10 @@ function printToFile(data) {
     if(myfile!==null){
         try {
             data = "var reportdata = " + data + ";";
-    		if(fs.exists(myfile)){
-    		    fs.remove(myfile);
-    		}
-            if(!fs.exists('speedreport.html')){
-                html = fs.read('loadreport/speedreport.html');
-            }else{
-                html = fs.read('speedreport.html');
+            if(fs.exists(myfile)){
+                fs.remove(myfile);
             }
+          html = fs.read(opt.options.template);
             if(opt.options.format != 'html'){
                 html=html.replace('{{REPORT_DATA_URI}}', '\/rest\/performance\/js\?uuid\=' + myjson);
             }else{
