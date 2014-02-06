@@ -20,7 +20,7 @@ You can take it for a spin in [this live demo](http://loadreport.wesleyhales.com
 ### loadreport will write, to csv, json or junit format xml (filmstrip writes to png):
 
 ```
-Usage:  phantomjs loadreport.js --help
+Usage:  loadreport --help
 
   -u, --url=ARG                    the URL of the site to load test
   -t, --task=ARG                   the task to perform
@@ -51,7 +51,7 @@ Usage:  phantomjs loadreport.js --help
 ### speedreport produces a json and html file which will display detailed resource charting
 
 ```
-Usage:  phantomjs speedreport.js --help
+Usage:  speedreport --help
 
   -u, --url=ARG               the URL of the site to load test
       --output[=CONFIG_FILE]
