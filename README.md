@@ -77,7 +77,7 @@ Generate a report
 
 Run the webserver
 
-* ``` webserver [www_dir]```
+* ``` webserver [--www_dir www_dir]```
 
 Run your favorite browser to **http://localhost:8080/**.
 
