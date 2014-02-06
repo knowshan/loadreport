@@ -102,7 +102,9 @@
         
           <div class='highlight'><pre>  <span class="hljs-keyword">var</span> www_dir = path.resolve(__dirname+<span class="hljs-string">"/../"</span>);
   www_dir = argv.www_dir || www_dir;
-  www_dir = path.resolve(www_dir)+<span class="hljs-string">"/"</span>;</pre></div>
+  www_dir = path.resolve(www_dir)+<span class="hljs-string">"/"</span>;
+  www_dir = path.relative(process.cwd(),www_dir);
+  www_dir = !www_dir?<span class="hljs-string">"./"</span>:www_dir;</pre></div>
         
       
         
