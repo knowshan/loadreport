@@ -84,19 +84,19 @@ Run your favorite browser to **http://localhost:8080/**.
 
 ## Documentation index
 
-http://wesleyhales.github.io/loadreport/documentation/schedule-loadreport.html
+http://maboiteaspam.github.io/loadreport/documentation/schedule-loadreport.html
 
-http://wesleyhales.github.io/loadreport/documentation/speedreport.html
+http://maboiteaspam.github.io/loadreport/documentation/speedreport.html
 
-http://wesleyhales.github.io/loadreport/documentation/loadreport.html
+http://maboiteaspam.github.io/loadreport/documentation/loadreport.html
 
-http://wesleyhales.github.io/loadreport/documentation/build.html
+http://maboiteaspam.github.io/loadreport/documentation/build.html
 
-http://wesleyhales.github.io/loadreport/documentation/tests.html
+http://maboiteaspam.github.io/loadreport/documentation/tests.html
 
-http://wesleyhales.github.io/loadreport/documentation/main.html
+http://maboiteaspam.github.io/loadreport/documentation/main.html
 
-http://wesleyhales.github.io/loadreport/documentation/webserver.html
+http://maboiteaspam.github.io/loadreport/documentation/webserver.html
 
 ## Development support
 ### Setup
