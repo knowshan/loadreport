@@ -2,7 +2,7 @@
 Builds a report of DOM and resource load times using phantomjs
 
 ## install
-* ``` npm install maboitespam/loadreport -g --production ```
+* ``` npm install maboiteaspam/loadreport -g --production ```
 
 ## usage
 * ``` loadreport --url=http://cnn.com ```
@@ -39,13 +39,13 @@ Usage:  phantomjs loadreport.js --help
 
 * ``` loadreport --url=http://cnn.com performance csv ```
 
-![loadreport](https://raw.github.com/wesleyhales/loadreport/master/doc/readme/cnn-loadreport.png)
+![loadreport](https://raw.github.com/maboiteaspam/loadreport/master/doc/readme/cnn-loadreport.png)
     
 * ``` loadreport --url=http://cnn.com --task=performancecache --format=json ```
     
 * ``` loadreport --url=http://cnn.com --task=filmstrip ```
 
-![loadreport filmstrip](https://raw.github.com/wesleyhales/loadreport/master/doc/readme/cnn-filmstrip.png)
+![loadreport filmstrip](https://raw.github.com/maboiteaspam/loadreport/master/doc/readme/cnn-filmstrip.png)
 
 ## speedreport Examples
 ### speedreport produces a json and html file which will display detailed resource charting
@@ -62,7 +62,7 @@ Usage:  phantomjs speedreport.js --help
 
 * ``` speedreport --url=http://www.cnn.com```
 
-![speedreport](https://raw.github.com/wesleyhales/loadreport/master/doc/readme/speedreport.png)
+![speedreport](https://raw.github.com/maboiteaspam/loadreport/master/doc/readme/speedreport.png)
 
 * ``` speedreport --url=http://www.cnn.com --output=output/```
 
