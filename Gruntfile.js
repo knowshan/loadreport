@@ -36,7 +36,7 @@ module.exports = function(grunt) {
         npmtag: true,
         tagName: '<%= version %>',
         github: {
-          repo: 'maboiteaspam/loadreport',
+          repo: 'wesleyhales/loadreport',
           usernameVar: 'GITHUB_USERNAME',
           passwordVar: 'GITHUB_PASSWORD'
         }

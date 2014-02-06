@@ -18,13 +18,6 @@ You can take it for a spin in [this live demo](http://loadreport.wesleyhales.com
 
 ## loadreport Examples
 ### loadreport will write, to csv, json or junit format xml (filmstrip writes to png):
-* ``` loadreport --url=http://cnn.com performance csv ```
-![loadreport](https://raw.github.com/maboiteaspam/loadreport/master/doc/readme/cnn-loadreport.png)
-    
-* ``` loadreport --url=http://cnn.com --task=performancecache --format=json ```
-    
-* ``` loadreport --url=http://cnn.com --task=filmstrip ```
-![loadreport filmstrip](https://raw.github.com/maboiteaspam/loadreport/master/doc/readme/cnn-filmstrip.png)
 
 ```
 Usage:  phantomjs loadreport.js --help
@@ -43,14 +36,19 @@ Usage:  phantomjs loadreport.js --help
   -v, --verbose
 ```
 
+
+* ``` loadreport --url=http://cnn.com performance csv ```
+
+![loadreport](https://raw.github.com/wesleyhales/loadreport/master/doc/readme/cnn-loadreport.png)
+    
+* ``` loadreport --url=http://cnn.com --task=performancecache --format=json ```
+    
+* ``` loadreport --url=http://cnn.com --task=filmstrip ```
+
+![loadreport filmstrip](https://raw.github.com/wesleyhales/loadreport/master/doc/readme/cnn-filmstrip.png)
+
 ## speedreport Examples
 ### speedreport produces a json and html file which will display detailed resource charting
-* ``` speedreport --url=http://www.cnn.com```
-![speedreport](https://raw.github.com/maboiteaspam/loadreport/master/doc/readme/speedreport.png)
-
-* ``` speedreport --url=http://www.cnn.com --output=output/```
-
-* ``` speedreport --url=http://www.cnn.com --format=json```
 
 ```
 Usage:  phantomjs speedreport.js --help
@@ -61,6 +59,14 @@ Usage:  phantomjs speedreport.js --help
   -h, --help
   -v, --verbose
 ```
+
+* ``` speedreport --url=http://www.cnn.com```
+
+![speedreport](https://raw.github.com/wesleyhales/loadreport/master/doc/readme/speedreport.png)
+
+* ``` speedreport --url=http://www.cnn.com --output=output/```
+
+* ``` speedreport --url=http://www.cnn.com --format=json```
 
 ## Embedded web server
 ### Quickly display speedreport HTML files
@@ -78,19 +84,19 @@ Run your favorite browser to **http://localhost:8080/**.
 
 ## Documentation index
 
-http://maboiteaspam.github.io/loadreport/documentation/schedule-loadreport.html
+http://wesleyhales.github.io/loadreport/documentation/schedule-loadreport.html
 
-http://maboiteaspam.github.io/loadreport/documentation/speedreport.html
+http://wesleyhales.github.io/loadreport/documentation/speedreport.html
 
-http://maboiteaspam.github.io/loadreport/documentation/loadreport.html
+http://wesleyhales.github.io/loadreport/documentation/loadreport.html
 
-http://maboiteaspam.github.io/loadreport/documentation/build.html
+http://wesleyhales.github.io/loadreport/documentation/build.html
 
-http://maboiteaspam.github.io/loadreport/documentation/tests.html
+http://wesleyhales.github.io/loadreport/documentation/tests.html
 
-http://maboiteaspam.github.io/loadreport/documentation/main.html
+http://wesleyhales.github.io/loadreport/documentation/main.html
 
-http://maboiteaspam.github.io/loadreport/documentation/webserver.html
+http://wesleyhales.github.io/loadreport/documentation/webserver.html
 
 ## Development support
 ### Setup
