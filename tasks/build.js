@@ -130,7 +130,7 @@ module.exports = function(grunt) {
           var args = base_args.slice(0).unshift("url="+url);
           var loadreport_process = run_phantomjs(args,function(stderr,stdout){
             if( urls.length == 0 ){
-                done();
+              done();
             }else{
               run_url();
             }
