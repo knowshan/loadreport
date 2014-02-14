@@ -183,50 +183,60 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
         <p>produce human friendly output</p>
 
         
-          <div class='highlight'><pre>        readable:<span class="hljs-literal">false</span>,
-
-        meta_dir:<span class="hljs-string">''</span>
+          <div class='highlight'><pre>        readable:<span class="hljs-literal">false</span>
       });
 
       <span class="hljs-keyword">var</span> web_server_paths = options.web_server_paths;
       <span class="hljs-keyword">var</span> host = options.host;
       <span class="hljs-keyword">var</span> port = options.port?options.port:<span class="hljs-string">""</span>;
       <span class="hljs-keyword">var</span> ssl_port = options.ssl_port?options.ssl_port:<span class="hljs-string">""</span>;
-      <span class="hljs-keyword">var</span> web_server_log = options.web_server_log;
       <span class="hljs-keyword">var</span> inject_assets = options.inject_assets;
-
-      <span class="hljs-keyword">var</span> meta_dir = options.meta_dir;
-
 
       <span class="hljs-keyword">var</span> done = <span class="hljs-keyword">this</span>.async();
 
-      <span class="hljs-keyword">var</span> webserver           = ph_libutil.webserver;
-      <span class="hljs-keyword">var</span> router_factory      = ph_libutil.router;
-      <span class="hljs-keyword">var</span> optimizer_factory   = ph_libutil.optimizer;
-      <span class="hljs-keyword">var</span> meta_factory        = ph_libutil.meta;
+      <span class="hljs-keyword">var</span> urls = unique_urls(options.urls);
+      grunt.log.ok(<span class="hljs-string">"Running "</span>+urls);
 
-      <span class="hljs-keyword">var</span> config = grunt.config.get();
+      <span class="hljs-keyword">var</span> base_args = forge_loadreport_args(options);
 
-      <span class="hljs-keyword">var</span> meta_manager = <span class="hljs-keyword">new</span> meta_factory(process.cwd(), meta_dir);
-      <span class="hljs-keyword">var</span> optimizer = <span class="hljs-keyword">new</span> optimizer_factory(meta_manager, config, grunt);
-      <span class="hljs-keyword">var</span> router = <span class="hljs-keyword">new</span> router_factory(config.routing);
 
-      router.load(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
+      <span class="hljs-keyword">if</span>( host+port+ssl_port != <span class="hljs-string">''</span> ){</pre></div>
+        
+      
+        
+        <p>get phantomizer main instance</p>
 
-        <span class="hljs-keyword">if</span>( host+port+ssl_port != <span class="hljs-string">''</span> ){
-          webserver = <span class="hljs-keyword">new</span> webserver(router,optimizer,meta_manager,grunt, web_server_paths);
+        
+          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> phantomizer = ph_libutil.get(<span class="hljs-string">"main"</span>);
+        phantomizer.create_webserver(web_server_paths,<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(webserver)</span>{</span>
+
           webserver.enable_dashboard(<span class="hljs-literal">false</span>);
           webserver.enable_build(<span class="hljs-literal">false</span>);
           webserver.enable_assets_inject(inject_assets);
 
           webserver.start(port, ssl_port, host);
-        }
 
-        <span class="hljs-keyword">var</span> urls = unique_urls(options.urls);
-        grunt.log.ok(<span class="hljs-string">"Running "</span>+urls);
-
-        <span class="hljs-keyword">var</span> base_args = forge_loadreport_args(options);
-
+          <span class="hljs-keyword">var</span> run_url = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span>{</span>
+            <span class="hljs-keyword">var</span> url = urls.shift();
+            <span class="hljs-keyword">var</span> args = base_args.slice(<span class="hljs-number">0</span>).unshift(<span class="hljs-string">"url="</span>+url);
+            <span class="hljs-keyword">var</span> loadreport_process = run_phantomjs(args,<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(stderr,stdout)</span>{</span>
+              <span class="hljs-keyword">if</span>( urls.length == <span class="hljs-number">0</span> ){
+                webserver.stop(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
+                  done();
+                })
+              }<span class="hljs-keyword">else</span>{
+                run_url();
+              }
+            });
+            loadreport_process.stdout.on(<span class="hljs-string">'data'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(data)</span> {</span>
+              <span class="hljs-keyword">if</span>(options.output==<span class="hljs-string">"-"</span>){
+                grunt.log.write(data.toString());
+              }
+            });
+          };
+          run_url();
+        });
+      }<span class="hljs-keyword">else</span>{
         <span class="hljs-keyword">var</span> run_url = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span>{</span>
           <span class="hljs-keyword">var</span> url = urls.shift();
           <span class="hljs-keyword">var</span> args = base_args.slice(<span class="hljs-number">0</span>).unshift(<span class="hljs-string">"url="</span>+url);
@@ -244,9 +254,7 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
           });
         };
         run_url();
-
-      });
-
+      }
     });</pre></div>
         
       
