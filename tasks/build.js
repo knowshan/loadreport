@@ -4,11 +4,9 @@ module.exports = function(grunt) {
 
   var fs = require("fs");
 
-  var childProcess = require('child_process');
   var phantomjs = require('phantomjs');
   var loadreport = require('../lib/main.js');
   var ph_libutil = require("phantomizer-libutil");
-  var url_parser = require('url');
 
   // loadreport runner
   // ------------
@@ -95,7 +93,8 @@ module.exports = function(grunt) {
 
       if( host+port+ssl_port != '' ){
 // get phantomizer main instance
-        var phantomizer = ph_libutil.get("main");
+        var Phantomizer = ph_libutil.Phantomizer;
+        var phantomizer = new Phantomizer(process.cwd(),grunt);
         phantomizer.create_webserver(web_server_paths,function(webserver){
 
           webserver.enable_dashboard(false);
