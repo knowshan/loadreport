@@ -64,11 +64,9 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
 
   <span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">"fs"</span>);
 
-  <span class="hljs-keyword">var</span> childProcess = <span class="hljs-built_in">require</span>(<span class="hljs-string">'child_process'</span>);
   <span class="hljs-keyword">var</span> phantomjs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'phantomjs'</span>);
   <span class="hljs-keyword">var</span> loadreport = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../lib/main.js'</span>);
-  <span class="hljs-keyword">var</span> ph_libutil = <span class="hljs-built_in">require</span>(<span class="hljs-string">"phantomizer-libutil"</span>);
-  <span class="hljs-keyword">var</span> url_parser = <span class="hljs-built_in">require</span>(<span class="hljs-string">'url'</span>);</pre></div>
+  <span class="hljs-keyword">var</span> ph_libutil = <span class="hljs-built_in">require</span>(<span class="hljs-string">"phantomizer-libutil"</span>);</pre></div>
         
       
         
@@ -207,7 +205,8 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
         <p>get phantomizer main instance</p>
 
         
-          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> phantomizer = ph_libutil.get(<span class="hljs-string">"main"</span>);
+          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> Phantomizer = ph_libutil.Phantomizer;
+        <span class="hljs-keyword">var</span> phantomizer = <span class="hljs-keyword">new</span> Phantomizer(process.cwd(),grunt);
         phantomizer.create_webserver(web_server_paths,<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(webserver)</span>{</span>
 
           webserver.enable_dashboard(<span class="hljs-literal">false</span>);
