@@ -312,7 +312,7 @@ var loadreport = {
         var page = WebPage.create(),
             pagetemp = WebPage.create(),
             event;
-
+        config.format = "json"
         if (config.userAgent && config.userAgent != "default") {
             if (config.userAgentAliases[config.userAgent]) {
                 config.userAgent = config.userAgentAliases[config.userAgent];
